@@ -1,0 +1,1477 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lundy Tiling | Wall & Floor Tiler – Newcastle, Lake Macquarie & Hunter Valley</title>
+  <meta name="description" content="Lundy Tiling – expert wall & floor tiling across Newcastle, Lake Macquarie and The Hunter Valley. Free quotes. Contact lundytiling@gmail.com" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --black:   #0a0a0a;
+      --dark:    #141414;
+      --mid:     #1e1e1e;
+      --orange:  #E55C20;
+      --orange-lt:#F07A40;
+      --white:   #f2ebe3;
+      --cream:   #e8e1d9;
+      --stone:   #cec6bc;
+      --grey:    #7a7a7a;
+      --light:   #c4bdb5;
+    }
+
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Inter', sans-serif; background: var(--cream); color: var(--dark); line-height: 1.6; overflow-x: hidden; }
+
+    /* ── LOADER ── */
+    #loader {
+      position: fixed; inset: 0; z-index: 9999;
+      background: #0a0a0a;
+      display: flex; align-items: center; justify-content: center;
+      transition: opacity 0.8s ease, visibility 0.8s ease;
+      overflow: hidden;
+    }
+    #loader.done { opacity: 0; visibility: hidden; }
+    .loader-inner { text-align: center; position: relative; z-index: 2; }
+    .loader-logo {
+      display: flex; align-items: center; gap: 0; margin-bottom: 1.5rem;
+      animation: loaderFadeUp 0.6s 0.5s ease both;
+    }
+    @keyframes loaderFadeUp { from { opacity:0; transform: translateY(16px); } to { opacity:1; transform:none; } }
+    .loader-diamond { width: 48px; height: 48px; margin-right: 1rem; }
+    .loader-wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2rem; font-weight: 700;
+      color: var(--white); letter-spacing: 0.1em;
+    }
+    .loader-wordmark em { color: var(--orange); font-style: normal; }
+    .loader-bar {
+      width: 0; height: 2px; background: var(--orange);
+      animation: loaderBar 1s 0.6s cubic-bezier(.4,0,.2,1) forwards;
+    }
+    @keyframes loaderBar { to { width: 100%; } }
+    /* Falling tiles */
+    .loader-tiles { position: absolute; inset: 0; pointer-events: none; overflow: hidden; }
+    .lt {
+      position: absolute; top: -60px; border-radius: 2px;
+      animation: tileFall linear both;
+    }
+    @keyframes tileFall {
+      0%   { top: -80px; opacity: 0.85; }
+      80%  { opacity: 0.6; }
+      100% { top: 110vh; opacity: 0; }
+    }
+
+    /* ── CURSOR ── */
+    .cursor-tile {
+      position: fixed; width: 10px; height: 10px;
+      background: rgba(6,6,6,0.7);
+      border: 1px solid rgba(229,92,32,0.4);
+      pointer-events: none; z-index: 9998;
+      transform: translate(-50%,-50%) rotate(45deg);
+      box-shadow: 0 0 6px rgba(0,0,0,0.3);
+      transition: width 0.2s, height 0.2s, opacity 0.2s;
+    }
+    .cursor-smoke {
+      position: fixed; width: 32px; height: 32px;
+      background: transparent;
+      border: 1px solid rgba(20,20,20,0.12);
+      pointer-events: none; z-index: 9997;
+      transform: translate(-50%,-50%) rotate(45deg);
+      filter: blur(0.4px);
+      transition: width 0.35s cubic-bezier(.16,1,.3,1), height 0.35s cubic-bezier(.16,1,.3,1);
+    }
+    .cursor-tile.big { width: 6px; height: 6px; border-color: rgba(229,92,32,0.3); }
+    .cursor-smoke.big { width: 44px; height: 44px; }
+
+    /* ── REVEAL ── */
+    .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.8s cubic-bezier(.16,1,.3,1), transform 0.8s cubic-bezier(.16,1,.3,1); }
+    .reveal.visible { opacity: 1; transform: translateY(0); }
+    .reveal-left  { opacity: 0; transform: translateX(-50px); transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1); }
+    .reveal-left.visible  { opacity: 1; transform: translateX(0); }
+    .reveal-right { opacity: 0; transform: translateX(50px);  transition: opacity 0.9s cubic-bezier(.16,1,.3,1), transform 0.9s cubic-bezier(.16,1,.3,1); }
+    .reveal-right.visible { opacity: 1; transform: translateX(0); }
+    .d1 { transition-delay: 0.1s; } .d2 { transition-delay: 0.2s; }
+    .d3 { transition-delay: 0.3s; } .d4 { transition-delay: 0.4s; }
+
+    /* ── NAV ── */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 6%; height: 80px;
+      transition: background 0.4s, height 0.4s, box-shadow 0.4s;
+    }
+    nav.scrolled {
+      background: rgba(10,10,10,0.97); height: 64px;
+      box-shadow: 0 1px 0 rgba(217,92,26,0.2);
+      backdrop-filter: blur(12px);
+    }
+    .nav-logo {
+      display: flex; align-items: center; gap: 0.7rem;
+      text-decoration: none;
+    }
+    .nav-logo svg { width: 36px; height: 36px; }
+    .nav-wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.4rem; font-weight: 700;
+      color: var(--white); letter-spacing: 0.06em;
+    }
+    .nav-wordmark em { color: var(--orange); font-style: normal; }
+    .nav-links { display: flex; gap: 2.5rem; list-style: none; align-items: center; }
+    .nav-links a {
+      color: rgba(255,255,255,0.75);
+      text-decoration: none; font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.12em; text-transform: uppercase;
+      position: relative; padding-bottom: 2px; transition: color 0.2s;
+    }
+    .nav-links a::after {
+      content: ''; position: absolute; bottom: -2px; left: 0; right: 0;
+      height: 1px; background: var(--orange);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.3s cubic-bezier(.16,1,.3,1);
+    }
+    .nav-links a:hover { color: var(--white); }
+    .nav-links a:hover::after { transform: scaleX(1); }
+    .nav-cta {
+      background: transparent !important; color: var(--orange) !important;
+      border: 1px solid var(--orange); padding: 0.5rem 1.4rem; border-radius: 1px;
+      transition: background 0.2s !important, color 0.2s !important;
+    }
+    .nav-cta::after { display: none !important; }
+    .nav-cta:hover { background: var(--orange) !important; color: var(--white) !important; }
+    .hamburger { display: none; flex-direction: column; gap: 6px; cursor: pointer; }
+    .hamburger span { display: block; width: 26px; height: 1.5px; background: var(--white); transition: 0.3s; }
+
+    /* ── HERO ── */
+    #hero {
+      position: relative; height: 100vh; min-height: 700px;
+      display: flex; align-items: flex-end;
+      overflow: hidden; background: var(--black);
+    }
+    .hero-bg {
+      position: absolute; inset: 0;
+      background-color: #0c0b0a;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 79px, rgba(217,92,26,0.06) 79px, rgba(217,92,26,0.06) 80px),
+        repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(217,92,26,0.06) 79px, rgba(217,92,26,0.06) 80px);
+    }
+    .hero-glow {
+      position: absolute; bottom: -200px; left: -200px;
+      width: 700px; height: 700px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(217,92,26,0.08) 0%, transparent 70%);
+      pointer-events: none;
+    }
+    .hero-geo {
+      position: absolute; top: 50%; right: 8%;
+      transform: translateY(-50%);
+      display: flex; flex-direction: column; gap: 8px;
+      opacity: 0.18;
+    }
+    .hero-geo-row { display: flex; gap: 8px; }
+    .hero-geo-cell {
+      width: 60px; height: 60px;
+      border: 1px solid var(--orange);
+      border-radius: 1px;
+    }
+    .hero-geo-cell.filled { background: rgba(217,92,26,0.15); }
+    .hero-overlay { display: none; }
+    .hero-content {
+      position: relative; z-index: 2;
+      padding: 0 6% 7%; width: 100%;
+    }
+    .hero-eyebrow {
+      display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;
+    }
+    .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--orange); }
+    .hero-eyebrow span {
+      font-size: 0.7rem; font-weight: 600;
+      letter-spacing: 0.22em; text-transform: uppercase; color: var(--orange);
+    }
+    .hero-content h1 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(4rem, 9.5vw, 8.5rem);
+      font-weight: 700; color: var(--white);
+      line-height: 0.93; letter-spacing: -0.02em;
+      margin-bottom: 1.8rem; max-width: 680px;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.5);
+    }
+    @keyframes orangeGlow {
+      0%, 100% { color: var(--orange); text-shadow: 0 0 0 rgba(229,92,32,0); }
+      50% { color: #f06830; text-shadow: 0 0 40px rgba(229,92,32,0.45), 0 0 80px rgba(229,92,32,0.15); }
+    }
+    @keyframes orangeRise {
+      from { opacity: 0; transform: translateY(18px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .hero-content h1 em {
+      font-style: italic; color: var(--orange); font-weight: 700;
+      display: inline-block;
+      animation: orangeRise 1s cubic-bezier(.16,1,.3,1) 0.6s both, orangeGlow 4s ease-in-out 1.6s infinite;
+    }
+    .hero-bottom { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; flex-wrap: wrap; }
+    .hero-desc { font-size: 1rem; color: rgba(255,255,255,0.65); max-width: 380px; line-height: 1.9; letter-spacing: 0.01em; }
+    .hero-actions { display: flex; gap: 1rem; align-items: center; flex-shrink: 0; }
+    .btn-orange {
+      display: inline-flex; align-items: center; gap: 0.7rem;
+      background: var(--orange); color: var(--white);
+      padding: 1rem 2rem; border-radius: 1px;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; transition: background 0.2s, transform 0.2s;
+    }
+    .btn-orange:hover { background: var(--orange-lt); transform: translateY(-2px); }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      color: rgba(255,255,255,0.7); font-size: 0.78rem; font-weight: 500;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; transition: color 0.2s;
+    }
+    .btn-ghost:hover { color: var(--orange); }
+    .hero-scroll-line {
+      position: absolute; right: 6%; bottom: 0;
+      writing-mode: vertical-lr; font-size: 0.65rem;
+      letter-spacing: 0.2em; text-transform: uppercase;
+      color: rgba(255,255,255,0.3);
+      display: flex; flex-direction: column; align-items: center; gap: 1rem;
+      padding-bottom: 2rem;
+    }
+    .hero-scroll-line::after {
+      content: ''; display: block; width: 1px; height: 60px;
+      background: linear-gradient(to bottom, rgba(217,92,26,0.9), transparent);
+      animation: scrollLine 2s ease infinite;
+    }
+    @keyframes scrollLine {
+      0%  { transform: scaleY(0); transform-origin: top; }
+      50% { transform: scaleY(1); transform-origin: top; }
+      51% { transform: scaleY(1); transform-origin: bottom; }
+      100%{ transform: scaleY(0); transform-origin: bottom; }
+    }
+
+    /* ── TICKER ── */
+    .ticker {
+      background: var(--dark);
+      border-top: 1px solid rgba(229,92,32,0.4);
+      border-bottom: 1px solid rgba(229,92,32,0.4);
+      overflow: hidden;
+      padding: 1rem 0;
+      white-space: nowrap;
+    }
+    .ticker-track {
+      display: inline-flex; gap: 4rem;
+      animation: ticker 22s linear infinite;
+    }
+    .ticker-track span { font-family: 'Cormorant Garamond', serif; font-size: 0.85rem; font-weight: 400; letter-spacing: 0.22em; text-transform: uppercase; color: #6e6660; }
+    .ticker-track .dot { color: var(--orange); font-size: 0.45rem; vertical-align: middle; }
+    @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+    /* ── SHARED ── */
+    .section { padding: 8rem 6%; }
+    .label {
+      display: flex; align-items: center; gap: 0.8rem;
+      font-size: 0.68rem; font-weight: 700;
+      letter-spacing: 0.22em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 1.2rem;
+    }
+    .label::before { content: ''; display: block; width: 28px; height: 1px; background: var(--orange); }
+    .h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.8rem, 5.5vw, 4.8rem);
+      font-weight: 700; line-height: 1.05; letter-spacing: -0.02em; color: var(--dark);
+    }
+    .h2.light { color: var(--white); }
+    .h2 em { font-style: italic; color: var(--orange); font-weight: 700; }
+
+    /* ── HERO PHOTO ── */
+    .hero-photo {
+      position: absolute; right: 0; top: 0; bottom: 0;
+      width: 54%; overflow: hidden; z-index: 0;
+      clip-path: polygon(7% 0, 100% 0, 100% 100%, 0% 100%);
+    }
+    .hero-photo img {
+      width: 100%; height: 100%; object-fit: cover; object-position: center 25%;
+      animation: heroZoom 7s ease-out forwards;
+    }
+    @keyframes heroZoom { from { transform: scale(1.07); } to { transform: scale(1); } }
+    .hero-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to right, rgba(10,10,10,0.55) 0%, transparent 45%);
+    }
+
+    /* ── PHOTO STRIP ── */
+    .photo-strip {
+      position: relative; height: 60vh; min-height: 420px; overflow: hidden;
+    }
+    .photo-strip img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .photo-strip::after {
+      content: ''; position: absolute; inset: 0;
+      background: rgba(10,10,10,0.48);
+    }
+    .photo-strip-text {
+      position: absolute; inset: 0; z-index: 2;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      text-align: center; padding: 2rem;
+    }
+    .photo-strip-text h2 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(3.4rem, 7vw, 6.5rem);
+      font-weight: 700; color: #fff; line-height: 0.97; letter-spacing: -0.02em; margin-bottom: 1.5rem;
+      text-shadow: 0 4px 40px rgba(0,0,0,0.6);
+    }
+    .photo-strip-text h2 em { font-style: italic; color: var(--orange); font-weight: 700; }
+    .photo-strip-text p { color: rgba(255,255,255,0.7); font-size: 1.05rem; max-width: 480px; line-height: 1.8; letter-spacing: 0.01em; }
+
+    /* ── ABOUT ── */
+    #about { background: var(--white); }
+    .about-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 6rem; align-items: center; }
+    .about-photo { position: relative; overflow: hidden; border-radius: 2px; height: 620px; }
+    .about-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.7s ease; }
+    .about-photo:hover img { transform: scale(1.05); filter: brightness(0.88); }
+    .about-photo::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(0,0,0,0.55) 0%, transparent 60%);
+      box-shadow: inset 0 0 0 1px rgba(229,92,32,0.35);
+      opacity: 0;
+      transition: opacity 0.6s ease;
+    }
+    .about-photo:hover::before { opacity: 1; }
+    .about-photo-tag {
+      position: absolute; bottom: 1.8rem; left: 1.8rem; z-index: 2;
+      background: var(--orange); color: #fff;
+      padding: 0.45rem 1.1rem;
+      font-size: 0.68rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .about-panel {
+      position: relative;
+      background: var(--dark);
+      border-radius: 2px;
+      padding: 3.5rem;
+      overflow: hidden;
+      min-height: 480px;
+      display: flex; flex-direction: column; justify-content: space-between;
+    }
+    .about-panel-bg {
+      position: absolute; inset: 0;
+      background-image:
+        repeating-linear-gradient(0deg, transparent, transparent 39px, rgba(217,92,26,0.05) 39px, rgba(217,92,26,0.05) 40px),
+        repeating-linear-gradient(90deg, transparent, transparent 39px, rgba(217,92,26,0.05) 39px, rgba(217,92,26,0.05) 40px);
+    }
+    .about-panel-accent {
+      position: absolute; top: 0; left: 0;
+      width: 4px; height: 100%; background: var(--orange);
+    }
+    .about-panel-logo {
+      position: relative; z-index: 1;
+      width: 80px; margin-bottom: 2rem;
+    }
+    .about-big-quote {
+      position: relative; z-index: 1;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.25rem, 2.2vw, 1.55rem);
+      font-style: italic; font-weight: 400;
+      color: rgba(255,255,255,0.82);
+      line-height: 1.75;
+      margin-bottom: 2rem;
+      letter-spacing: 0.01em;
+    }
+    .about-big-quote::before {
+      content: '"';
+      display: block;
+      font-size: 4rem; line-height: 1;
+      color: var(--orange); margin-bottom: 0.5rem;
+      font-style: normal;
+    }
+    .about-panel-footer {
+      position: relative; z-index: 1;
+      padding-top: 1.5rem;
+      border-top: 1px solid rgba(217,92,26,0.2);
+    }
+    .about-panel-name {
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase;
+      color: var(--orange);
+    }
+    .about-panel-title { font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-top: 0.2rem; }
+    .about-text .h2 { margin-bottom: 1.5rem; }
+    .about-text p { color: var(--grey); font-size: 1rem; line-height: 2; margin-bottom: 1.4rem; letter-spacing: 0.01em; }
+    .about-text p strong { color: var(--dark); font-weight: 600; }
+    .about-area {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      background: rgba(217,92,26,0.08);
+      border: 1px solid rgba(217,92,26,0.2);
+      border-radius: 1px; padding: 0.5rem 1rem;
+      font-size: 0.78rem; font-weight: 600;
+      letter-spacing: 0.06em; text-transform: uppercase;
+      color: var(--orange); margin-bottom: 2rem;
+    }
+    .about-area svg { width: 14px; height: 14px; }
+    .about-stats {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem; margin-top: 2.5rem; padding-top: 2rem;
+      border-top: 1px solid var(--stone);
+    }
+    .stat-val {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.8rem; font-weight: 700; color: var(--orange); line-height: 1; letter-spacing: -0.02em;
+    }
+    .stat-label { font-size: 0.78rem; color: var(--grey); margin-top: 0.5rem; letter-spacing: 0.04em; }
+
+    /* ── SERVICES ── */
+    #services { background: var(--cream); }
+    .services-head { display: grid; grid-template-columns: 1fr 1fr; gap: 4rem; align-items: end; margin-bottom: 4rem; }
+    .services-head p { color: var(--grey); font-size: 0.95rem; line-height: 1.8; }
+    .services-grid {
+      display: grid; grid-template-columns: repeat(3, 1fr);
+      gap: 1px; background: var(--light); border: 1px solid var(--light);
+    }
+    .service-card {
+      background: var(--white); padding: 2.5rem 2rem;
+      position: relative; overflow: hidden; transition: background 0.25s, transform 0.25s, box-shadow 0.25s; cursor: pointer;
+    }
+    .service-card:hover { transform: translateY(-3px); box-shadow: 0 12px 40px rgba(0,0,0,0.1); }
+    .service-card::before {
+      content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+      height: 2px; background: var(--orange);
+      transform: scaleX(0); transform-origin: left;
+      transition: transform 0.4s cubic-bezier(.16,1,.3,1);
+    }
+    .service-card:hover::before { transform: scaleX(1); }
+    .service-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 4rem; font-weight: 700;
+      color: var(--stone); line-height: 1; margin-bottom: 1.5rem; letter-spacing: -0.03em;
+    }
+    .service-card h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.75rem; font-weight: 700; letter-spacing: -0.01em;
+      color: var(--dark); margin-bottom: 0.8rem;
+    }
+    .service-card p { font-size: 0.88rem; color: var(--grey); line-height: 1.8; }
+    .service-arrow {
+      position: absolute; bottom: 2rem; right: 2rem;
+      width: 36px; height: 36px;
+      border: 1px solid var(--light); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      color: var(--grey); transition: background 0.3s, border-color 0.3s, color 0.3s;
+    }
+    .service-card:hover .service-arrow { background: var(--orange); border-color: var(--orange); color: var(--white); }
+    .service-arrow svg { width: 14px; height: 14px; }
+
+    /* ── PROCESS ── */
+    #process { background: var(--dark); }
+    .process-head { text-align: center; margin-bottom: 5rem; }
+    .process-head p { color: rgba(255,255,255,0.45); font-size: 0.9rem; max-width: 480px; margin: 1rem auto 0; }
+    .process-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; position: relative; }
+    .process-steps::before {
+      content: ''; position: absolute; top: 2rem; left: 12%; right: 12%;
+      height: 1px; background: linear-gradient(to right, var(--orange) 0%, rgba(217,92,26,0.1) 100%);
+    }
+    .process-step { text-align: center; }
+    .step-num {
+      width: 64px; height: 64px; margin: 0 auto 1.5rem;
+      border: 1px solid rgba(217,92,26,0.35); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 700;
+      color: var(--orange); background: var(--dark); position: relative; z-index: 1;
+    }
+    .process-step h3 {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.25rem; font-weight: 600;
+      color: var(--white); margin-bottom: 0.6rem;
+    }
+    .process-step p { font-size: 0.82rem; color: rgba(255,255,255,0.4); line-height: 1.7; }
+
+    /* ── GALLERY ── */
+    #gallery { background: var(--black); padding: 8rem 6%; }
+    .gallery-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
+    .gallery-head p { color: rgba(255,255,255,0.4); font-size: 0.85rem; max-width: 320px; line-height: 1.7; }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: 120px; gap: 6px;
+    }
+    .g-item { overflow: hidden; background: var(--mid); position: relative; border-radius: 1px; cursor: pointer; }
+    .g-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.6s ease; }
+    .g-item:hover img { transform: scale(1.08); filter: brightness(0.82); }
+    .g-item::before {
+      content: '';
+      position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.12) 55%, transparent 100%);
+      box-shadow: inset 0 0 0 1px rgba(229,92,32,0.4);
+      opacity: 0;
+      transition: opacity 0.55s ease;
+    }
+    .g-item:hover::before { opacity: 1; }
+    .g-item::after {
+      content: 'VIEW';
+      position: absolute; bottom: 1.4rem; left: 1.6rem; z-index: 2;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
+      color: #fff;
+      border-bottom: 1px solid var(--orange); padding-bottom: 3px;
+      opacity: 0; transform: translateY(10px);
+      transition: opacity 0.45s 0.06s ease, transform 0.55s cubic-bezier(.16,1,.3,1);
+    }
+    .g-item:hover::after { opacity: 1; transform: translateY(0); }
+    .g-ph {
+      width: 100%; height: 100%;
+      display: flex; flex-direction: column; align-items: center; justify-content: center;
+      gap: 0.6rem; color: rgba(255,255,255,0.1);
+      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    }
+    .g-ph svg { width: 20px; height: 20px; }
+    /* Lightbox */
+    .lb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; align-items:center; justify-content:center; }
+    .lb-overlay.active { display:flex; }
+    .lb-overlay img { max-width:90vw; max-height:90vh; object-fit:contain; border-radius:2px; }
+    .lb-close { position:absolute; top:1.5rem; right:1.5rem; color:#fff; font-size:2rem; cursor:pointer; line-height:1; background:none; border:none; opacity:0.6; transition:opacity 0.2s; }
+    .lb-close:hover { opacity:1; }
+    .g-a { grid-column: span 7; grid-row: span 2; }
+    .g-b { grid-column: span 5; grid-row: span 2; }
+    .g-c { grid-column: span 4; grid-row: span 2; }
+    .g-d { grid-column: span 8; grid-row: span 2; }
+    .g-h { grid-column: span 6; grid-row: span 2; }
+    .g-i { grid-column: span 12; grid-row: span 3; position: relative; }
+    .g-commercial-tag {
+      position: absolute; bottom: 1.8rem; left: 1.8rem;
+      background: var(--orange); color: #fff;
+      padding: 0.5rem 1.2rem;
+      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
+      z-index: 2;
+    }
+    .gallery-ig {
+      margin-top: 2rem; text-align: center;
+    }
+    .gallery-ig a {
+      display: inline-flex; align-items: center; gap: 0.6rem;
+      color: rgba(255,255,255,0.5); font-size: 0.8rem;
+      text-decoration: none; letter-spacing: 0.08em;
+      transition: color 0.2s;
+    }
+    .gallery-ig a:hover { color: var(--orange); }
+    .gallery-ig svg { width: 16px; height: 16px; }
+    /* ── GALLERY SLIDESHOW ── */
+    .gallery-slideshow-wrap { position: relative; }
+    .gallery-slideshow { position: relative; height: 702px; overflow: hidden; }
+    .gallery-slide {
+      position: absolute; inset: 0;
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      grid-auto-rows: 165px;
+      gap: 14px;
+      opacity: 0; transition: opacity 0.85s cubic-bezier(.16,1,.3,1);
+      pointer-events: none;
+    }
+    .gallery-slide.active { opacity: 1; pointer-events: auto; }
+    .gallery-nav {
+      display: flex; align-items: center; justify-content: center;
+      gap: 0.9rem; padding: 1.4rem 0;
+    }
+    .gallery-dot {
+      width: 7px; height: 7px; border-radius: 50%;
+      background: rgba(255,255,255,0.18); border: none;
+      cursor: pointer; padding: 0; flex-shrink: 0;
+      transition: background 0.25s, transform 0.25s;
+    }
+    .gallery-dot.active { background: var(--orange); transform: scale(1.5); }
+    .gallery-arrow {
+      background: rgba(229,92,32,0.12); color: rgba(255,255,255,0.65);
+      border: 1px solid rgba(229,92,32,0.25);
+      width: 34px; height: 34px; border-radius: 50%;
+      font-size: 1.2rem; line-height: 1; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background 0.2s, color 0.2s, border-color 0.2s;
+    }
+    .gallery-arrow:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
+    .gallery-permanent { margin-top: 6px; }
+    .gallery-permanent-item {
+      position: relative; overflow: hidden; cursor: pointer;
+      border-radius: 1px; height: 372px; background: var(--mid);
+    }
+    .gallery-permanent-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.6s ease; }
+    .gallery-permanent-item:hover img { transform: scale(1.04); filter: brightness(0.85); }
+    .gallery-permanent-item::before {
+      content: ''; position: absolute; inset: 0; z-index: 1;
+      background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
+      box-shadow: inset 0 0 0 1px rgba(229,92,32,0.35);
+      opacity: 0; transition: opacity 0.5s ease;
+    }
+    .gallery-permanent-item:hover::before { opacity: 1; }
+
+    /* ── TESTIMONIALS ── */
+    #testimonials { background: var(--cream); }
+    #testimonials { background: var(--black); }
+    .testi-head { text-align: center; margin-bottom: 5rem; }
+    .testi-head .label { justify-content: center; color: rgba(255,255,255,0.4); }
+    .testi-head .label::before { display: none; }
+    .testi-head .h2 { color: var(--white); }
+    .testi-head .h2 em { color: var(--orange); }
+    .stars { display: flex; gap: 4px; margin-bottom: 1.6rem; }
+    .stars svg { width: 16px; height: 16px; fill: var(--orange); }
+    .testi-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 2px; }
+    .testi-card {
+      background: rgba(255,255,255,0.035);
+      padding: 3.5rem; position: relative; overflow: hidden;
+      display: flex; flex-direction: column;
+      border: 1px solid rgba(255,255,255,0.06);
+      transition: background 0.3s;
+    }
+    .testi-card:hover { background: rgba(255,255,255,0.055); }
+    .testi-bar { position: absolute; top: 0; left: 0; right: 0; height: 3px; background: var(--orange); }
+    .testi-quote {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 5rem; color: var(--orange);
+      opacity: 0.25; line-height: 0.7; margin-bottom: 1.8rem;
+    }
+    .testi-card p {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.15rem, 2vw, 1.5rem); font-style: italic;
+      color: rgba(255,255,255,0.82); line-height: 1.75;
+      margin-bottom: 2.5rem; flex: 1;
+    }
+    .testi-author { display: flex; align-items: center; gap: 1rem; padding-top: 2rem; border-top: 1px solid rgba(255,255,255,0.07); }
+    .testi-avatar {
+      width: 46px; height: 46px; border-radius: 50%; flex-shrink: 0;
+      background: rgba(229,92,32,0.15); border: 1px solid rgba(229,92,32,0.35);
+      display: flex; align-items: center; justify-content: center;
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.15rem; font-weight: 700; color: var(--orange);
+    }
+    .testi-name { font-size: 0.82rem; font-weight: 700; color: var(--white); letter-spacing: 0.04em; }
+    .testi-source { font-size: 0.7rem; color: rgba(255,255,255,0.3); margin-top: 0.25rem; }
+
+    /* ── WHY ── */
+    #why { background: var(--white); }
+    .why-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 7rem; align-items: center; }
+    /* Photo panel */
+    .why-panel {
+      position: relative; overflow: hidden; border-radius: 2px;
+      min-height: 580px; display: flex; flex-direction: column; justify-content: flex-end;
+    }
+    .why-panel-photo { position: absolute; inset: 0; }
+    .why-panel-photo img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 0.8s ease; }
+    .why-panel:hover .why-panel-photo img { transform: scale(1.04); }
+    .why-panel-photo::after {
+      content: ''; position: absolute; inset: 0;
+      background: linear-gradient(to top, rgba(5,5,5,0.92) 0%, rgba(5,5,5,0.4) 55%, rgba(5,5,5,0.15) 100%);
+    }
+    .why-panel-bg { display: none; }
+    .why-panel-accent { display: none; }
+    .why-stat-grid {
+      position: relative; z-index: 1;
+      display: grid; grid-template-columns: 1fr 1fr;
+      border-top: 1px solid rgba(229,92,32,0.2);
+    }
+    .why-stat-item {
+      padding: 2rem 1.8rem;
+      background: transparent; border: none;
+    }
+    .why-stat-item:nth-child(1) { border-right: 1px solid rgba(229,92,32,0.15); border-bottom: 1px solid rgba(229,92,32,0.15); }
+    .why-stat-item:nth-child(2) { border-bottom: 1px solid rgba(229,92,32,0.15); }
+    .why-stat-item:nth-child(3) { border-right: 1px solid rgba(229,92,32,0.15); }
+    .why-stat-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(2.5rem, 4vw, 3.6rem); font-weight: 700; color: var(--orange);
+      line-height: 1; letter-spacing: -0.02em;
+    }
+    .why-stat-label { font-size: 0.62rem; color: rgba(255,255,255,0.45); margin-top: 0.6rem; line-height: 1.5; letter-spacing: 0.1em; text-transform: uppercase; }
+    .why-panel-footer {
+      position: relative; z-index: 1;
+      padding: 1.5rem 1.8rem;
+      border-top: 1px solid rgba(229,92,32,0.15);
+      color: rgba(255,255,255,0.3); font-size: 0.74rem;
+      font-style: italic; line-height: 1.7;
+    }
+    /* Right side text */
+    .why-text .h2 { margin-bottom: 1.2rem; }
+    .why-text > p { color: var(--grey); font-size: 0.95rem; line-height: 1.9; margin-bottom: 2.5rem; }
+    .why-list { display: flex; flex-direction: column; gap: 0; }
+    .why-item {
+      display: grid; grid-template-columns: 3rem 1fr;
+      gap: 1.2rem; align-items: start;
+      padding: 1.6rem 0;
+      border-bottom: 1px solid var(--stone);
+    }
+    .why-item:first-child { border-top: 1px solid var(--stone); }
+    .why-item:hover { background: transparent; }
+    .why-num {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.6rem; font-weight: 700; color: var(--orange);
+      opacity: 0.5; line-height: 1; padding-top: 2px;
+    }
+    .why-item h4 { font-size: 0.9rem; font-weight: 700; color: var(--dark); margin-bottom: 0.3rem; letter-spacing: 0.01em; }
+    .why-item p { font-size: 0.82rem; color: var(--grey); line-height: 1.7; }
+
+    /* ── CONTACT ── */
+    #contact { background: var(--dark); }
+    .contact-wrap { display: grid; grid-template-columns: 1fr 1.2fr; gap: 6rem; }
+    .contact-info .h2 { margin-bottom: 1rem; }
+    .contact-info > p { color: rgba(255,255,255,0.5); font-size: 0.9rem; line-height: 1.8; margin-bottom: 2.5rem; }
+    .contact-details { display: flex; flex-direction: column; gap: 1rem; margin-bottom: 2.5rem; }
+    .c-item { display: flex; align-items: center; gap: 1rem; color: rgba(255,255,255,0.7); font-size: 0.88rem; }
+    .c-icon {
+      width: 38px; height: 38px; flex-shrink: 0;
+      background: rgba(217,92,26,0.1);
+      border: 1px solid rgba(217,92,26,0.2); border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+    }
+    .c-icon svg { width: 16px; height: 16px; color: var(--orange); }
+    .c-item a { color: rgba(255,255,255,0.7); text-decoration: none; transition: color 0.2s; }
+    .c-item a:hover { color: var(--orange); }
+    .social-row { display: flex; gap: 0.8rem; }
+    .s-btn {
+      display: flex; align-items: center; gap: 0.7rem;
+      padding: 0.7rem 1.5rem; border-radius: 1px;
+      font-size: 0.72rem; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase;
+      text-decoration: none; transition: border-color 0.2s, color 0.2s, transform 0.2s;
+      border: 1px solid rgba(255,255,255,0.18); color: rgba(255,255,255,0.6);
+      background: transparent;
+    }
+    .s-btn:hover { border-color: var(--orange); color: var(--orange); transform: translateY(-2px); opacity: 1; }
+    .s-btn svg { width: 15px; height: 15px; }
+    .s-fb { }
+    .s-ig { }
+    .contact-form { background: var(--white); border-radius: 2px; padding: 3.5rem; box-shadow: 0 4px 60px rgba(0,0,0,0.18); }
+    .form-title {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: clamp(1.8rem, 3vw, 2.4rem); font-weight: 700; letter-spacing: -0.01em;
+      color: var(--dark); margin-bottom: 0.4rem;
+    }
+    .form-subtitle { font-size: 0.82rem; color: var(--grey); margin-bottom: 2.2rem; line-height: 1.6; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .fg { display: flex; flex-direction: column; gap: 0.4rem; margin-bottom: 1rem; }
+    .fg label { font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--grey); }
+    .fg input, .fg select, .fg textarea {
+      border: 1.5px solid var(--stone); border-radius: 1px;
+      padding: 0.8rem 1rem; font-family: 'Inter', sans-serif;
+      font-size: 0.88rem; color: var(--dark); background: var(--cream);
+      outline: none; transition: border-color 0.2s, background 0.2s;
+    }
+    .fg input:focus, .fg select:focus, .fg textarea:focus { border-color: var(--orange); background: var(--white); }
+    .fg textarea { min-height: 100px; resize: vertical; }
+    .file-drop {
+      border: 2px dashed var(--light); border-radius: 2px;
+      padding: 2.5rem 2rem; text-align: center; cursor: pointer;
+      background: var(--cream);
+      transition: border-color 0.2s, background 0.2s;
+      position: relative;
+    }
+    .file-drop:hover, .file-drop.over { border-color: var(--orange); background: rgba(217,92,26,0.04); }
+    .file-drop input[type="file"] { position: absolute; inset: 0; opacity: 0; cursor: pointer; z-index: 2; }
+    .file-drop-icon { width: 36px; height: 36px; margin: 0 auto 0.8rem; color: var(--grey); opacity: 0.6; }
+    .file-drop p { font-size: 0.82rem; color: var(--grey); line-height: 1.6; }
+    .file-drop strong { color: var(--orange); font-weight: 600; }
+    .file-drop .hint { font-size: 0.7rem; color: rgba(100,100,100,0.55); margin-top: 0.4rem; }
+    .file-thumbs { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.75rem; }
+    .file-thumb { width: 68px; height: 68px; border-radius: 2px; overflow: hidden; position: relative; }
+    .file-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .form-submit {
+      width: 100%; padding: 1rem;
+      background: var(--orange); color: var(--white);
+      border: none; border-radius: 1px;
+      font-family: 'Inter', sans-serif;
+      font-size: 0.78rem; font-weight: 700;
+      letter-spacing: 0.14em; text-transform: uppercase;
+      cursor: pointer; margin-top: 0.5rem;
+      transition: background 0.25s, transform 0.2s;
+    }
+    .form-submit:hover { background: var(--orange-lt); transform: translateY(-1px); }
+
+    /* ── FOOTER ── */
+    footer {
+      background: var(--black);
+      border-top: 1px solid rgba(217,92,26,0.12);
+      padding: 3rem 6%;
+      display: grid; grid-template-columns: 1fr auto 1fr;
+      align-items: center; gap: 2rem;
+    }
+    .footer-logo { display: flex; align-items: center; gap: 0.6rem; }
+    .footer-logo svg { width: 32px; height: 32px; }
+    .footer-wordmark {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.3rem; font-weight: 700; color: var(--white);
+    }
+    .footer-wordmark em { color: var(--orange); font-style: normal; }
+    footer p { color: rgba(255,255,255,0.3); font-size: 0.75rem; text-align: center; }
+    .footer-links { display: flex; gap: 1.5rem; justify-content: flex-end; }
+    .footer-links a { color: rgba(255,255,255,0.35); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
+    .footer-links a:hover { color: var(--orange); }
+
+    /* ── MOBILE ── */
+    @media (max-width: 960px) {
+      .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); padding: 2rem 6%; gap: 1.5rem; border-bottom: 1px solid rgba(217,92,26,0.15); }
+      .nav-links.open { display: flex; }
+      .hamburger { display: flex; }
+      .about-grid, .why-wrap, .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      .services-head { grid-template-columns: 1fr; gap: 1.5rem; }
+      .services-grid { grid-template-columns: 1fr 1fr; }
+      .process-steps { grid-template-columns: 1fr 1fr; }
+      .process-steps::before { display: none; }
+      .testi-grid { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; }
+      .g-a,.g-b,.g-c,.g-d,.g-h { grid-column: span 2; grid-row: span 2; }
+      .g-i { grid-column: 1 / -1; grid-row: span 3; }
+      .gallery-slideshow { height: 682px; }
+      .gallery-slide { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; }
+      .gallery-permanent-item { height: 492px; }
+      footer { grid-template-columns: 1fr; text-align: center; }
+      .footer-links { justify-content: center; }
+      .hero-geo { display: none; }
+      .about-photo { height: 380px; }
+    }
+    @media (max-width: 600px) {
+      .section { padding: 5rem 5%; }
+      nav { padding: 0 5%; }
+      .services-grid { grid-template-columns: 1fr; }
+      .form-row { grid-template-columns: 1fr; }
+      .hero-content h1 { font-size: 3rem; }
+      .hero-content { padding: 0 0 5rem; }
+      #hero { padding: 0 5%; }
+      .why-stat-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ── LOADER ── -->
+<div id="loader">
+  <div class="loader-inner">
+    <div class="loader-logo">
+      <!-- Lundy logo SVG (two interlocking bracket shapes: grey top-right + orange bottom-left) -->
+      <svg class="loader-diamond" viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+        <polygon points="40,3 77,40 58,58 40,54 54,40 40,26 22,22" fill="#575757"/>
+        <polygon points="3,40 40,77 58,58 40,54 26,40 40,26 22,22" fill="#E55C20"/>
+      </svg>
+      <div class="loader-wordmark">LUNDY <em>TILING</em></div>
+    </div>
+    <div class="loader-bar"></div>
+  </div>
+</div>
+
+<!-- ── CURSOR ── -->
+<div class="cursor-tile" id="cursorTile"></div>
+<div class="cursor-smoke" id="cursorSmoke"></div>
+
+<!-- ── NAV ── -->
+<nav id="navbar">
+  <a href="#hero" class="nav-logo">
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="40,3 77,40 58,58 40,54 54,40 40,26 22,22" fill="#575757"/>
+      <polygon points="3,40 40,77 58,58 40,54 26,40 40,26 22,22" fill="#E55C20"/>
+    </svg>
+    <div class="nav-wordmark">LUNDY <em>TILING</em></div>
+  </a>
+  <ul class="nav-links" id="navLinks">
+    <li><a href="#about">About</a></li>
+    <li><a href="#services">Services</a></li>
+    <li><a href="#gallery">Gallery</a></li>
+    <li><a href="#testimonials">Reviews</a></li>
+    <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
+  </ul>
+  <div class="hamburger" id="hamburger" onclick="toggleMenu()">
+    <span></span><span></span><span></span>
+  </div>
+</nav>
+
+<!-- ── HERO ── -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-glow"></div>
+  <div class="hero-photo"><img src="photos/01-marble-shower.jpg" alt="Luxury marble tiling by Lundy Tiling"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-geo">
+    <div class="hero-geo-row"><div class="hero-geo-cell filled"></div><div class="hero-geo-cell"></div><div class="hero-geo-cell filled"></div></div>
+    <div class="hero-geo-row"><div class="hero-geo-cell"></div><div class="hero-geo-cell filled"></div><div class="hero-geo-cell"></div></div>
+    <div class="hero-geo-row"><div class="hero-geo-cell filled"></div><div class="hero-geo-cell"></div><div class="hero-geo-cell filled"></div></div>
+    <div class="hero-geo-row"><div class="hero-geo-cell"></div><div class="hero-geo-cell filled"></div><div class="hero-geo-cell"></div></div>
+  </div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">
+      <span>Newcastle · Lake Macquarie · Hunter Valley</span>
+    </div>
+    <h1>Wall &amp; Floor<br />Tiling Done<br /><em>Right.</em></h1>
+    <div class="hero-bottom">
+      <p class="hero-desc">Lundy Tiling delivers expert craftsmanship across Newcastle, Lake Macquarie and The Hunter Valley. Free quotes — get in touch today.</p>
+      <div class="hero-actions">
+        <a href="#contact" class="btn-orange">
+          Get a Free Quote
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+        </a>
+        <a href="#services" class="btn-ghost">
+          Our Services
+          <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </a>
+      </div>
+    </div>
+  </div>
+  <div class="hero-scroll-line">Scroll</div>
+</section>
+
+<!-- ── TICKER ── -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>Bathroom Tiling</span><span class="dot">◆</span>
+    <span>Kitchen Splashbacks</span><span class="dot">◆</span>
+    <span>Floor Installation</span><span class="dot">◆</span>
+    <span>Outdoor &amp; Alfresco</span><span class="dot">◆</span>
+    <span>Feature Walls</span><span class="dot">◆</span>
+    <span>Repairs &amp; Regrouting</span><span class="dot">◆</span>
+    <span>Free Quotes</span><span class="dot">◆</span>
+    <span>Bathroom Tiling</span><span class="dot">◆</span>
+    <span>Kitchen Splashbacks</span><span class="dot">◆</span>
+    <span>Floor Installation</span><span class="dot">◆</span>
+    <span>Outdoor &amp; Alfresco</span><span class="dot">◆</span>
+    <span>Feature Walls</span><span class="dot">◆</span>
+    <span>Repairs &amp; Regrouting</span><span class="dot">◆</span>
+    <span>Free Quotes</span><span class="dot">◆</span>
+  </div>
+</div>
+
+<!-- ── ABOUT ── -->
+<section id="about" class="section" style="background:var(--white);">
+  <div class="about-grid">
+    <div class="about-photo reveal-left">
+      <img src="photos/03-double-ensuite.jpg" alt="Luxury double-basin ensuite by Lundy Tiling">
+      <div class="about-photo-tag">Newcastle · Lake Macquarie · Hunter Valley</div>
+    </div>
+    <div class="about-text reveal-right">
+      <div class="label">About Lundy Tiling</div>
+      <h2 class="h2">Regan Lundy —<br />The Tiler Who<br /><em>Gets It Right</em></h2>
+      <div class="about-area">
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
+        Newcastle · Lake Macquarie · Hunter Valley
+      </div>
+      <p>Lundy Tiling is a locally run tiling business servicing <strong>Newcastle, Lake Macquarie and The Hunter Valley</strong>. Regan takes pride in delivering work that's precise, professional, and built to last.</p>
+      <p>Whether it's a bathroom renovation, a new kitchen splashback, or a full floor installation — every job gets the same level of care and attention. No shortcuts. No excuses. Just quality tiling done right.</p>
+      <div class="about-stats">
+        <div>
+          <div class="stat-val">5★</div>
+          <div class="stat-label">Google Rating</div>
+        </div>
+        <div>
+          <div class="stat-val">100%</div>
+          <div class="stat-label">Client Satisfaction</div>
+        </div>
+        <div>
+          <div class="stat-val">Free</div>
+          <div class="stat-label">Quotes — Always</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── SERVICES ── -->
+<section id="services" class="section">
+  <div class="services-head">
+    <div class="reveal">
+      <div class="label">What We Do</div>
+      <h2 class="h2">Our <em>Services</em></h2>
+    </div>
+    <p class="reveal d2">Every space is different. We tailor our approach to your vision, your timeline, and your budget — no shortcuts, no compromises.</p>
+  </div>
+  <div class="services-grid">
+    <div class="service-card reveal d1" onclick="bookService('Bathroom Tiling')">
+      <div class="service-num">01</div>
+      <h3>Bathroom Tiling</h3>
+      <p>Complete bathroom renovations — floors, walls, showers, niches, wet areas and splashbacks. We handle every detail.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+    <div class="service-card reveal d2" onclick="bookService('Kitchen Splashback')">
+      <div class="service-num">02</div>
+      <h3>Kitchen Splashbacks</h3>
+      <p>Stylish, functional splashback installations that transform your kitchen and protect your walls — installed with precision.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+    <div class="service-card reveal d3" onclick="bookService('Floor Tiling')">
+      <div class="service-num">03</div>
+      <h3>Floor Tiling</h3>
+      <p>Precision floor laying for any room — living areas, hallways, laundries. Any pattern, any tile size, any finish.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+    <div class="service-card reveal d1" onclick="bookService('Outdoor / Alfresco')">
+      <div class="service-num">04</div>
+      <h3>Outdoor &amp; Alfresco</h3>
+      <p>Durable outdoor tiling for patios, pool surrounds, and entertaining areas. Slip-resistant and built for Australian conditions.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+    <div class="service-card reveal d2" onclick="bookService('Feature Wall')">
+      <div class="service-num">05</div>
+      <h3>Feature Walls</h3>
+      <p>Make a statement with a custom feature wall — subway tiles, large format, mosaics, or natural stone looks.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+    <div class="service-card reveal d3" onclick="bookService('Repairs &amp; Regrouting')">
+      <div class="service-num">06</div>
+      <h3>Repairs &amp; Regrouting</h3>
+      <p>Cracked tiles, failing grout, or outdated finishes. We restore your tiling to look brand new again.</p>
+      <div class="service-arrow"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg></div>
+    </div>
+  </div>
+</section>
+
+<!-- ── PHOTO STRIP ── -->
+<div class="photo-strip">
+  <img src="photos/04-pool-surround.jpg" alt="Pool surround tiling by Lundy Tiling">
+  <div class="photo-strip-text">
+    <h2>Every Surface.<br />Every Detail.<br /><em>Done Right.</em></h2>
+    <p>From luxurious bathrooms to outdoor entertaining areas — Lundy Tiling delivers results that last.</p>
+  </div>
+</div>
+
+<!-- ── PROCESS ── -->
+<section id="process" class="section">
+  <div class="process-head reveal">
+    <div class="label" style="justify-content:center;">How It Works</div>
+    <h2 class="h2 light">Simple. <em>Transparent.</em> Done Right.</h2>
+    <p>A straightforward process so you always know what to expect — from first call to final tile.</p>
+  </div>
+  <div class="process-steps">
+    <div class="process-step reveal d1">
+      <div class="step-num">01</div>
+      <h3>Free Quote</h3>
+      <p>Contact us with your project details. We'll assess the job and provide a clear, no-obligation quote.</p>
+    </div>
+    <div class="process-step reveal d2">
+      <div class="step-num">02</div>
+      <h3>Plan &amp; Prepare</h3>
+      <p>We discuss tile selections, layout patterns, and timeline — everything agreed before we start.</p>
+    </div>
+    <div class="process-step reveal d3">
+      <div class="step-num">03</div>
+      <h3>Installation</h3>
+      <p>Expert tiling with minimal disruption. We treat your home with respect and keep a clean worksite.</p>
+    </div>
+    <div class="process-step reveal d4">
+      <div class="step-num">04</div>
+      <h3>Final Walkthrough</h3>
+      <p>We inspect every detail together. You're only satisfied when it's perfect — that's our standard.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ── GALLERY ── -->
+<section id="gallery">
+  <div class="gallery-head">
+    <div>
+      <div class="label">Our Work</div>
+      <h2 class="h2 light">Photo <em>Gallery</em></h2>
+    </div>
+    <p>Every project in this gallery is a Lundy Tiling original — residential &amp; commercial work across Newcastle, Lake Macquarie &amp; The Hunter Valley.</p>
+  </div>
+  <div class="gallery-slideshow-wrap">
+    <div class="gallery-slideshow">
+      <div class="gallery-slide active">
+        <div class="g-item g-a" onclick="openLb('photos/15-marble-luxury-bathroom.jpg')"><img src="photos/15-marble-luxury-bathroom.jpg" alt="Marble luxury bathroom with golden sunset" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/34-sandstone-alfresco-patio.jpg')"><img src="photos/34-sandstone-alfresco-patio.jpg" alt="Warm sandstone alfresco patio tiling" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/16-marble-shower-brass.jpg')"><img src="photos/16-marble-shower-brass.jpg" alt="Marble shower with brass fixtures" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/17-dark-bathroom-skylight.jpg')"><img src="photos/17-dark-bathroom-skylight.jpg" alt="Dark stone bathroom with skylight" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/37-new-home-patio-alfresco.jpg')"><img src="photos/37-new-home-patio-alfresco.jpg" alt="New home alfresco patio with grey tiles" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/14-grey-ensuite-double-vanity.jpg')"><img src="photos/14-grey-ensuite-double-vanity.jpg" alt="Grey ensuite with double vanity" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/10-grey-terrazzo-bathroom.jpg')"><img src="photos/10-grey-terrazzo-bathroom.jpg" alt="Grey terrazzo bathroom" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/06-white-bathroom.jpg')"><img src="photos/06-white-bathroom.jpg" alt="Modern white bathroom with arch mirror" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/13-pool-travertine-sunny.jpg')"><img src="photos/13-pool-travertine-sunny.jpg" alt="Pool with travertine tile surrounds" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/11-exterior-stone-house.jpg')"><img src="photos/11-exterior-stone-house.jpg" alt="House exterior with stone cladding" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/21-alfresco-bbq-wall.jpg')"><img src="photos/21-alfresco-bbq-wall.jpg" alt="Alfresco outdoor entertaining area" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/40-grey-bath-subway-feature.jpg')"><img src="photos/40-grey-bath-subway-feature.jpg" alt="Grey bathroom with dark subway feature wall" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/08-fireplace-wall.jpg')"><img src="photos/08-fireplace-wall.jpg" alt="Black feature wall with fireplace" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/19-exterior-stairs.jpg')"><img src="photos/19-exterior-stairs.jpg" alt="Premium tiled exterior stairs" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/12-timber-vanity-bathroom.jpg')"><img src="photos/12-timber-vanity-bathroom.jpg" alt="White bathroom with timber vanity" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/38-greige-rain-shower.jpg')"><img src="photos/38-greige-rain-shower.jpg" alt="Greige bathroom with matte black rain shower" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/22-pool-travertine-waterfall.jpg')"><img src="photos/22-pool-travertine-waterfall.jpg" alt="Pool with travertine surround and waterfall wall" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/23-white-marble-double-vanity.jpg')"><img src="photos/23-white-marble-double-vanity.jpg" alt="White Calacatta marble bathroom double vanity" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/24-luxury-marble-brass-bathroom.jpg')"><img src="photos/24-luxury-marble-brass-bathroom.jpg" alt="Luxury marble bathroom with brass fixtures" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/35-grey-herringbone-shower.jpg')"><img src="photos/35-grey-herringbone-shower.jpg" alt="Grey herringbone feature shower with niche" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/26-marble-steps-close.jpg')"><img src="photos/26-marble-steps-close.jpg" alt="Architectural grey marble tiled steps" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/36-grey-bathroom-dark-vanity.jpg')"><img src="photos/36-grey-bathroom-dark-vanity.jpg" alt="Grey bathroom with dark timber vanity" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/28-grey-bath-freestanding.jpg')"><img src="photos/28-grey-bath-freestanding.jpg" alt="Grey tiled bathroom with freestanding bath" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/29-sage-subway-bathroom.jpg')"><img src="photos/29-sage-subway-bathroom.jpg" alt="Sage green subway tiles with timber vanity" loading="lazy"></div>
+      </div>
+      <div class="gallery-slide">
+        <div class="g-item g-a" onclick="openLb('photos/30-pool-grey-pavers.jpg')"><img src="photos/30-pool-grey-pavers.jpg" alt="Pool area with large grey pavers" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/31-dark-subway-laundry.jpg')"><img src="photos/31-dark-subway-laundry.jpg" alt="Dark glossy subway tiles laundry" loading="lazy"></div>
+        <div class="g-item g-b" onclick="openLb('photos/39-commercial-white-subway-kitchen.jpg')"><img src="photos/39-commercial-white-subway-kitchen.jpg" alt="Commercial kitchen with white subway tiles" loading="lazy"></div>
+        <div class="g-item g-a" onclick="openLb('photos/33-black-slate-balcony.jpg')"><img src="photos/33-black-slate-balcony.jpg" alt="Black slate tiles on modern balcony" loading="lazy"></div>
+      </div>
+    </div>
+    <div class="gallery-nav">
+      <button class="gallery-arrow" id="galleryPrev" aria-label="Previous">&#8249;</button>
+      <button class="gallery-dot active" data-slide="0" aria-label="Slide 1"></button>
+      <button class="gallery-dot" data-slide="1" aria-label="Slide 2"></button>
+      <button class="gallery-dot" data-slide="2" aria-label="Slide 3"></button>
+      <button class="gallery-dot" data-slide="3" aria-label="Slide 4"></button>
+      <button class="gallery-dot" data-slide="4" aria-label="Slide 5"></button>
+      <button class="gallery-dot" data-slide="5" aria-label="Slide 6"></button>
+      <button class="gallery-dot" data-slide="6" aria-label="Slide 7"></button>
+      <button class="gallery-arrow" id="galleryNext" aria-label="Next">&#8250;</button>
+    </div>
+  </div>
+  <div class="gallery-permanent">
+    <div class="gallery-permanent-item" onclick="openLb('photos/09-commercial-bar.jpg')">
+      <img src="photos/09-commercial-bar.jpg" alt="Commercial bar tiling — dark marble" loading="lazy">
+      <div class="g-commercial-tag">Commercial &amp; Hospitality Work</div>
+    </div>
+  </div>
+  <div id="lbOverlay" class="lb-overlay" onclick="closeLb()">
+    <button class="lb-close" onclick="closeLb()">&times;</button>
+    <img id="lbImg" src="" alt="">
+  </div>
+  <div class="gallery-ig">
+    <a href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">
+      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
+      Follow @lundytiling for the latest completed projects
+    </a>
+  </div>
+</section>
+
+<!-- ── TESTIMONIALS ── -->
+<section id="testimonials" class="section">
+  <div class="testi-head reveal">
+    <div class="label" style="justify-content:center;margin-bottom:0.8rem;">What Clients Say</div>
+    <h2 class="h2">Real Reviews.<br /><em>Real Results.</em></h2>
+  </div>
+  <div class="testi-grid">
+    <div class="testi-card reveal d1">
+      <div class="testi-bar"></div>
+      <div class="testi-quote">"</div>
+      <div class="stars">
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      </div>
+      <p>Just got my rental bathroom and ensuite tiled. Young Regan shows experience and knowledge far beyond his age. Work ethic really stands out on and off the park. The harder you work, more luck you will have by your side. All the best Rex.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">Z</div>
+        <div>
+          <div class="testi-name">Zachary Lloyd</div>
+          <div class="testi-source">Facebook Review · Recommends Lundy Tiling</div>
+        </div>
+      </div>
+    </div>
+    <div class="testi-card reveal d2">
+      <div class="testi-bar"></div>
+      <div class="testi-quote">"</div>
+      <div class="stars">
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+        <svg viewBox="0 0 20 20"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+      </div>
+      <p>Good bloke, great worker.</p>
+      <div class="testi-author">
+        <div class="testi-avatar">C</div>
+        <div>
+          <div class="testi-name">Cooper Buswell</div>
+          <div class="testi-source">Facebook Review · Recommends Lundy Tiling</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── WHY ── -->
+<section id="why" class="section" style="background:var(--white);">
+  <div class="why-wrap">
+    <div class="why-panel reveal-left">
+      <div class="why-panel-photo">
+        <img src="photos/07-stone-bathroom.jpg" alt="Premium stone bathroom by Lundy Tiling">
+      </div>
+      <div class="why-stat-grid">
+        <div class="why-stat-item">
+          <div class="why-stat-num">NSW</div>
+          <div class="why-stat-label">Licensed & Insured Tiler</div>
+        </div>
+        <div class="why-stat-item">
+          <div class="why-stat-num">3</div>
+          <div class="why-stat-label">Regions Serviced</div>
+        </div>
+        <div class="why-stat-item">
+          <div class="why-stat-num">$0</div>
+          <div class="why-stat-label">Cost for a Quote</div>
+        </div>
+        <div class="why-stat-item">
+          <div class="why-stat-num">100%</div>
+          <div class="why-stat-label">Client Satisfaction Rate</div>
+        </div>
+      </div>
+      <div class="why-panel-footer">
+        Servicing Newcastle, Lake Macquarie &amp; The Hunter Valley — local knowledge, local service, local standards.
+      </div>
+    </div>
+    <div class="why-text reveal-right">
+      <div class="label">Why Choose Us</div>
+      <h2 class="h2">Skill. Integrity.<br /><em>Guaranteed.</em></h2>
+      <p>We know you have options — here's why homeowners across the Hunter keep choosing Lundy Tiling.</p>
+      <div class="why-list">
+        <div class="why-item">
+          <div class="why-num">01</div>
+          <div><h4>Licensed &amp; Fully Insured</h4><p>All work is carried out to Australian standards — fully licensed and insured for your peace of mind.</p></div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">02</div>
+          <div><h4>Attention to Detail</h4><p>Perfect grout lines, level surfaces, clean edges. Experience and knowledge far beyond his age — client's words, not ours.</p></div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">03</div>
+          <div><h4>Free, Transparent Quotes</h4><p>No hidden costs, no bill shock. Get in touch for a free quote — always clear, always honest.</p></div>
+        </div>
+        <div class="why-item">
+          <div class="why-num">04</div>
+          <div><h4>Local to the Hunter</h4><p>Based locally — fast response times, no travel delays, and genuine care for the community we work in.</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ── CONTACT ── -->
+<section id="contact" class="section">
+  <div class="contact-wrap">
+    <div class="contact-info reveal-left">
+      <div class="label">Get In Touch</div>
+      <h2 class="h2 light">Start Your<br /><em>Project Today</em></h2>
+      <p>Fill in the form for a free, no-obligation quote. Or reach out directly — Regan is always happy to talk through your project.</p>
+      <div class="contact-details">
+        <div class="c-item">
+          <div class="c-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
+          <a href="mailto:lundytiling@gmail.com">lundytiling@gmail.com</a>
+        </div>
+        <div class="c-item">
+          <div class="c-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg></div>
+          Newcastle · Lake Macquarie · Hunter Valley, NSW
+        </div>
+      </div>
+      <div class="social-row">
+        <a href="https://www.facebook.com/LundyTiling/" target="_blank" rel="noopener" class="s-btn s-fb">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 00-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 011-1h3z"/></svg> Facebook
+        </a>
+        <a href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener" class="s-btn s-ig">
+          <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1112.63 8 4 4 0 0116 11.37z" fill="none" stroke="white" stroke-width="1.5"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5" stroke="white" stroke-width="2" stroke-linecap="round"/></svg> Instagram
+        </a>
+      </div>
+    </div>
+    <div class="contact-form reveal-right">
+      <div class="form-title">Request a Free Quote</div>
+      <p class="form-subtitle">Fill in your details below — Regan will get back to you within 24 hours with a clear, no-obligation quote.</p>
+      <div class="form-row">
+        <div class="fg"><label>First Name</label><input type="text" placeholder="John" /></div>
+        <div class="fg"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
+      </div>
+      <div class="form-row">
+        <div class="fg"><label>Phone</label><input type="tel" placeholder="04XX XXX XXX" /></div>
+        <div class="fg"><label>Email</label><input type="email" placeholder="john@email.com" /></div>
+      </div>
+      <div class="form-row">
+        <div class="fg">
+          <label>Service Required</label>
+          <select>
+            <option value="">Select a service...</option>
+            <option>Bathroom Tiling</option>
+            <option>Kitchen Splashback</option>
+            <option>Floor Tiling</option>
+            <option>Outdoor / Alfresco</option>
+            <option>Feature Wall</option>
+            <option>Repairs &amp; Regrouting</option>
+            <option>Other / Not sure</option>
+          </select>
+        </div>
+        <div class="fg">
+          <label>When do you need it done?</label>
+          <select>
+            <option value="">Select a timeframe...</option>
+            <option>As soon as possible</option>
+            <option>Within 1 month</option>
+            <option>1–3 months</option>
+            <option>3–6 months</option>
+            <option>Just planning ahead</option>
+          </select>
+        </div>
+      </div>
+      <div class="fg">
+        <label>Project Details</label>
+        <textarea placeholder="Describe the space, approximate size, tile preferences, any inspiration..."></textarea>
+      </div>
+      <div class="fg">
+        <label>Project Photos <span style="font-weight:400;color:var(--grey);">— optional, helps Regan quote accurately</span></label>
+        <div class="file-drop" id="fileDrop">
+          <input type="file" id="photoUpload" accept="image/*" multiple onchange="handleFiles(this)">
+          <svg class="file-drop-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          <p>Drop photos here or <strong>click to upload</strong></p>
+          <p class="hint">JPG or PNG · up to 10MB each · multiple files OK</p>
+          <div class="file-thumbs" id="fileThumbs"></div>
+        </div>
+      </div>
+      <button class="form-submit" type="button">Send Quote Request →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ── FOOTER ── -->
+<footer>
+  <div class="footer-logo">
+    <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+      <polygon points="40,3 77,40 58,58 40,54 54,40 40,26 22,22" fill="#575757"/>
+      <polygon points="3,40 40,77 58,58 40,54 26,40 40,26 22,22" fill="#E55C20"/>
+    </svg>
+    <div class="footer-wordmark">LUNDY <em>TILING</em></div>
+  </div>
+  <p>&copy; 2025 Lundy Tiling. Newcastle, NSW. All rights reserved.</p>
+  <div class="footer-links">
+    <a href="https://www.facebook.com/LundyTiling/" target="_blank" rel="noopener">Facebook</a>
+    <a href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">Instagram</a>
+    <a href="mailto:lundytiling@gmail.com">Email</a>
+    <a href="#contact">Get a Quote</a>
+  </div>
+</footer>
+
+<script>
+  // ── LOADER — falling tiles ──
+  (function() {
+    const loader = document.getElementById('loader');
+    const container = document.createElement('div');
+    container.className = 'loader-tiles';
+    loader.prepend(container);
+    for (let i = 0; i < 32; i++) {
+      const t = document.createElement('div');
+      t.className = 'lt';
+      const size = 10 + Math.random() * 24;
+      const dur  = (0.65 + Math.random() * 0.75).toFixed(2);
+      const del  = (Math.random() * 1.0).toFixed(2);
+      const rot  = Math.floor(Math.random() * 360);
+      const col  = Math.random() > 0.42 ? '#E55C20' : (Math.random() > 0.5 ? '#575757' : '#2a2a2a');
+      t.style.cssText = `width:${size}px;height:${size}px;left:${(Math.random()*105-2).toFixed(1)}%;background:${col};transform:rotate(${rot}deg);animation-name:tileFall;animation-duration:${dur}s;animation-delay:${del}s;animation-fill-mode:both;`;
+      container.appendChild(t);
+    }
+  })();
+  window.addEventListener('load', () => {
+    setTimeout(() => document.getElementById('loader').classList.add('done'), 1700);
+  });
+
+  // ── SERVICE → QUOTE ──
+  function bookService(name) {
+    const sel = document.querySelector('#contact select');
+    if (sel) {
+      for (let o of sel.options) { if (o.value === name || o.text.includes(name.replace('&amp;','&'))) { sel.value = o.value; break; } }
+    }
+    document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
+  }
+
+  // ── CURSOR ──
+  const tile  = document.getElementById('cursorTile');
+  const smoke = document.getElementById('cursorSmoke');
+  let mx = 0, my = 0, sx = 0, sy = 0;
+  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+  (function move() {
+    tile.style.left = mx + 'px'; tile.style.top = my + 'px';
+    sx += (mx - sx) * 0.14; sy += (my - sy) * 0.14;
+    smoke.style.left = sx + 'px'; smoke.style.top = sy + 'px';
+    requestAnimationFrame(move);
+  })();
+  document.querySelectorAll('a, button, .service-card, .testi-card, .why-item, .g-item').forEach(el => {
+    el.addEventListener('mouseenter', () => { tile.classList.add('big'); smoke.classList.add('big'); });
+    el.addEventListener('mouseleave', () => { tile.classList.remove('big'); smoke.classList.remove('big'); });
+  });
+
+  // ── NAV ──
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 60);
+  });
+
+  // ── HAMBURGER ──
+  function toggleMenu() { document.getElementById('navLinks').classList.toggle('open'); }
+  function handleFiles(input) {
+    const thumbs = document.getElementById('fileThumbs');
+    thumbs.innerHTML = '';
+    [...input.files].forEach(file => {
+      const reader = new FileReader();
+      reader.onload = e => {
+        const div = document.createElement('div');
+        div.className = 'file-thumb';
+        div.innerHTML = `<img src="${e.target.result}" alt="">`;
+        thumbs.appendChild(div);
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+  const drop = document.getElementById('fileDrop');
+  if (drop) {
+    drop.addEventListener('dragover', e => { e.preventDefault(); drop.classList.add('over'); });
+    drop.addEventListener('dragleave', () => drop.classList.remove('over'));
+    drop.addEventListener('drop', e => { e.preventDefault(); drop.classList.remove('over'); const inp = document.getElementById('photoUpload'); inp.files = e.dataTransfer.files; handleFiles(inp); });
+  }
+  function openLb(src) { document.getElementById('lbImg').src = src; document.getElementById('lbOverlay').classList.add('active'); document.body.style.overflow='hidden'; }
+  function closeLb() { document.getElementById('lbOverlay').classList.remove('active'); document.body.style.overflow=''; }
+  document.addEventListener('keydown', e => { if(e.key === 'Escape') closeLb(); });
+  document.querySelectorAll('#navLinks a').forEach(a => a.addEventListener('click', () => document.getElementById('navLinks').classList.remove('open')));
+
+  // ── SMOOTH SCROLL ──
+  document.querySelectorAll('a[href^="#"]').forEach(a => {
+    a.addEventListener('click', e => {
+      const t = document.querySelector(a.getAttribute('href'));
+      if (t) { e.preventDefault(); window.scrollTo({ top: t.offsetTop - 72, behavior: 'smooth' }); }
+    });
+  });
+
+  // ── SCROLL REVEAL ──
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => obs.observe(el));
+
+  // ── COUNTER ──
+  const cObs = new IntersectionObserver(entries => {
+    entries.forEach(e => {
+      if (!e.isIntersecting) return;
+      const el = e.target, target = parseInt(el.dataset.count);
+      let cur = 0;
+      const step = target / 60;
+      const t = setInterval(() => {
+        cur = Math.min(cur + step, target);
+        el.textContent = Math.floor(cur);
+        if (cur >= target) clearInterval(t);
+      }, 16);
+      cObs.unobserve(el);
+    });
+  }, { threshold: 0.5 });
+  document.querySelectorAll('[data-count]').forEach(el => cObs.observe(el));
+
+  // Gallery slideshow
+  (function() {
+    const slides = document.querySelectorAll('.gallery-slide');
+    const dots = document.querySelectorAll('.gallery-dot');
+    let current = 0, timer;
+    function goTo(n) {
+      slides[current].classList.remove('active');
+      dots[current].classList.remove('active');
+      current = ((n % slides.length) + slides.length) % slides.length;
+      slides[current].classList.add('active');
+      dots[current].classList.add('active');
+      clearInterval(timer);
+      timer = setInterval(() => goTo(current + 1), 5000);
+    }
+    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
+    document.getElementById('galleryPrev').addEventListener('click', () => goTo(current - 1));
+    document.getElementById('galleryNext').addEventListener('click', () => goTo(current + 1));
+    timer = setInterval(() => goTo(current + 1), 5000);
+  })();
+</script>
+</body>
+</html>
