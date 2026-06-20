@@ -488,120 +488,46 @@
 
     /* ── GALLERY ── */
     #gallery { background: var(--black); padding: 8rem 6%; }
-    .gallery-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 3rem; flex-wrap: wrap; }
-    .gallery-head p { color: rgba(255,255,255,0.4); font-size: 0.85rem; max-width: 320px; line-height: 1.7; }
-    .gallery-grid {
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-auto-rows: 120px; gap: 6px;
+    .portfolio-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; margin-bottom: 2.2rem; flex-wrap: wrap; }
+    .portfolio-more {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      color: rgba(255,255,255,0.55); font-size: 0.82rem; text-decoration: none;
+      letter-spacing: 0.05em; transition: color 0.2s; white-space: nowrap;
     }
-    .g-item { overflow: hidden; background: var(--mid); position: relative; border-radius: 1px; cursor: pointer; }
-    .g-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.6s ease; }
-    .g-item:hover img { transform: scale(1.08); filter: brightness(0.82); }
-    .g-item::before {
-      content: '';
-      position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(to top, rgba(0,0,0,0.78) 0%, rgba(0,0,0,0.12) 55%, transparent 100%);
-      box-shadow: inset 0 0 0 1px rgba(229,92,32,0.4);
-      opacity: 0;
-      transition: opacity 0.55s ease;
+    .portfolio-more::before { content: '\25C6'; color: var(--orange); font-size: 0.6rem; }
+    .portfolio-more:hover { color: var(--orange); }
+    .portfolio-filters { display: flex; flex-wrap: wrap; gap: 0.7rem; margin-bottom: 2.2rem; }
+    .pf-btn {
+      font-family: 'Inter', sans-serif; font-size: 0.72rem; font-weight: 600;
+      letter-spacing: 0.14em; text-transform: uppercase; cursor: pointer;
+      color: rgba(255,255,255,0.6); background: transparent;
+      border: 1px solid rgba(255,255,255,0.16); border-radius: 2px;
+      padding: 0.7rem 1.3rem; transition: color 0.22s, background 0.22s, border-color 0.22s;
     }
-    .g-item:hover::before { opacity: 1; }
-    .g-item::after {
-      content: 'VIEW';
-      position: absolute; bottom: 1.4rem; left: 1.6rem; z-index: 2;
-      font-family: 'Inter', sans-serif;
-      font-size: 0.65rem; font-weight: 700; letter-spacing: 0.25em; text-transform: uppercase;
-      color: #fff;
-      border-bottom: 1px solid var(--orange); padding-bottom: 3px;
-      opacity: 0; transform: translateY(10px);
-      transition: opacity 0.45s 0.06s ease, transform 0.55s cubic-bezier(.16,1,.3,1);
+    .pf-btn:hover { color: #fff; border-color: rgba(229,92,32,0.55); }
+    .pf-btn.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+    .portfolio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+    .pf-card {
+      position: relative; overflow: hidden; cursor: pointer;
+      border-radius: 2px; aspect-ratio: 4 / 3.4; background: var(--mid);
+      animation: pfIn 0.5s cubic-bezier(.16,1,.3,1) both;
     }
-    .g-item:hover::after { opacity: 1; transform: translateY(0); }
-    .g-ph {
-      width: 100%; height: 100%;
-      display: flex; flex-direction: column; align-items: center; justify-content: center;
-      gap: 0.6rem; color: rgba(255,255,255,0.1);
-      font-size: 0.65rem; letter-spacing: 0.12em; text-transform: uppercase;
+    @keyframes pfIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+    .pf-card img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.6s ease; }
+    .pf-card:hover img { transform: scale(1.06); filter: brightness(0.72); }
+    .pf-card__ov {
+      position: absolute; inset: 0; z-index: 1; display: flex; flex-direction: column;
+      justify-content: flex-end; padding: 1.25rem;
+      background: linear-gradient(to top, rgba(0,0,0,0.82) 0%, rgba(0,0,0,0.16) 46%, transparent 76%);
     }
-    .g-ph svg { width: 20px; height: 20px; }
+    .pf-card__cat { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.35rem; }
+    .pf-card__title { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #fff; line-height: 1.35; letter-spacing: 0.01em; }
     /* Lightbox */
     .lb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; align-items:center; justify-content:center; }
     .lb-overlay.active { display:flex; }
     .lb-overlay img { max-width:90vw; max-height:90vh; object-fit:contain; border-radius:2px; }
     .lb-close { position:absolute; top:1.5rem; right:1.5rem; color:#fff; font-size:2rem; cursor:pointer; line-height:1; background:none; border:none; opacity:0.6; transition:opacity 0.2s; }
     .lb-close:hover { opacity:1; }
-    .g-a { grid-column: span 7; grid-row: span 2; }
-    .g-b { grid-column: span 5; grid-row: span 2; }
-    .g-c { grid-column: span 4; grid-row: span 2; }
-    .g-d { grid-column: span 8; grid-row: span 2; }
-    .g-h { grid-column: span 6; grid-row: span 2; }
-    .g-i { grid-column: span 12; grid-row: span 3; position: relative; }
-    .g-commercial-tag {
-      position: absolute; bottom: 1.8rem; left: 1.8rem;
-      background: var(--orange); color: #fff;
-      padding: 0.5rem 1.2rem;
-      font-size: 0.72rem; font-weight: 700; letter-spacing: 0.12em; text-transform: uppercase;
-      z-index: 2;
-    }
-    .gallery-ig {
-      margin-top: 2rem; text-align: center;
-    }
-    .gallery-ig a {
-      display: inline-flex; align-items: center; gap: 0.6rem;
-      color: rgba(255,255,255,0.5); font-size: 0.8rem;
-      text-decoration: none; letter-spacing: 0.08em;
-      transition: color 0.2s;
-    }
-    .gallery-ig a:hover { color: var(--orange); }
-    .gallery-ig svg { width: 16px; height: 16px; }
-    /* ── GALLERY SLIDESHOW ── */
-    .gallery-slideshow-wrap { position: relative; }
-    .gallery-slideshow { position: relative; height: 702px; overflow: hidden; }
-    .gallery-slide {
-      position: absolute; inset: 0;
-      display: grid;
-      grid-template-columns: repeat(12, 1fr);
-      grid-auto-rows: 165px;
-      gap: 14px;
-      opacity: 0; transition: opacity 0.85s cubic-bezier(.16,1,.3,1);
-      pointer-events: none;
-    }
-    .gallery-slide.active { opacity: 1; pointer-events: auto; }
-    .gallery-nav {
-      display: flex; align-items: center; justify-content: center;
-      gap: 0.9rem; padding: 1.4rem 0;
-    }
-    .gallery-dot {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: rgba(255,255,255,0.18); border: none;
-      cursor: pointer; padding: 0; flex-shrink: 0;
-      transition: background 0.25s, transform 0.25s;
-    }
-    .gallery-dot.active { background: var(--orange); transform: scale(1.5); }
-    .gallery-arrow {
-      background: rgba(229,92,32,0.12); color: rgba(255,255,255,0.65);
-      border: 1px solid rgba(229,92,32,0.25);
-      width: 34px; height: 34px; border-radius: 50%;
-      font-size: 1.2rem; line-height: 1; cursor: pointer;
-      display: flex; align-items: center; justify-content: center;
-      transition: background 0.2s, color 0.2s, border-color 0.2s;
-    }
-    .gallery-arrow:hover { background: var(--orange); color: #fff; border-color: var(--orange); }
-    .gallery-permanent { margin-top: 6px; }
-    .gallery-permanent-item {
-      position: relative; overflow: hidden; cursor: pointer;
-      border-radius: 1px; height: 372px; background: var(--mid);
-    }
-    .gallery-permanent-item img { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform 1s cubic-bezier(.16,1,.3,1), filter 0.6s ease; }
-    .gallery-permanent-item:hover img { transform: scale(1.04); filter: brightness(0.85); }
-    .gallery-permanent-item::before {
-      content: ''; position: absolute; inset: 0; z-index: 1;
-      background: linear-gradient(to top, rgba(0,0,0,0.72) 0%, rgba(0,0,0,0.1) 50%, transparent 100%);
-      box-shadow: inset 0 0 0 1px rgba(229,92,32,0.35);
-      opacity: 0; transition: opacity 0.5s ease;
-    }
-    .gallery-permanent-item:hover::before { opacity: 1; }
 
     /* ── TESTIMONIALS ── */
     #testimonials { background: var(--cream); }
@@ -807,18 +733,13 @@
       .nav-links { display: none; flex-direction: column; position: absolute; top: 64px; left: 0; right: 0; background: var(--black); padding: 2rem 6%; gap: 1.5rem; border-bottom: 1px solid rgba(217,92,26,0.15); }
       .nav-links.open { display: flex; }
       .hamburger { display: flex; }
-      .about-grid, .why-wrap, .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
+      .about-grid, .contact-wrap { grid-template-columns: 1fr; gap: 3rem; }
       .services-head { grid-template-columns: 1fr; gap: 1.5rem; }
       .services-grid { grid-template-columns: 1fr 1fr; }
       .process-steps { grid-template-columns: 1fr 1fr; }
       .process-steps::before { display: none; }
       .testi-grid { grid-template-columns: 1fr; }
-      .gallery-grid { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; }
-      .g-a,.g-b,.g-c,.g-d,.g-h { grid-column: span 2; grid-row: span 2; }
-      .g-i { grid-column: 1 / -1; grid-row: span 3; }
-      .gallery-slideshow { height: 682px; }
-      .gallery-slide { grid-template-columns: repeat(4, 1fr); grid-auto-rows: 160px; }
-      .gallery-permanent-item { height: 492px; }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
       footer { grid-template-columns: 1fr; text-align: center; }
       .footer-links { justify-content: center; }
       .hero-geo { display: none; }
@@ -828,6 +749,7 @@
       .section { padding: 5rem 5%; }
       nav { padding: 0 5%; }
       .services-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: 1fr; }
       .form-row { grid-template-columns: 1fr; }
       .hero-content h1 { font-size: 3rem; }
       .hero-content { padding: 0 0 5rem; }
@@ -946,8 +868,8 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
         Newcastle · Lake Macquarie · Hunter Valley
       </div>
-      <p>Lundy Tiling is a locally run tiling business servicing <strong>Newcastle, Lake Macquarie and The Hunter Valley</strong>. Regan takes pride in delivering work that's precise, professional, and built to last.</p>
-      <p>Whether it's a bathroom renovation, a new kitchen splashback, or a full floor installation — every job gets the same level of care and attention. No shortcuts. No excuses. Just quality tiling done right.</p>
+      <p>Lundy Tiling is a <strong>family business</strong> servicing <strong>Newcastle, Lake Macquarie and The Hunter Valley</strong>. The trade has been passed down through the generations — first started by Regan's dad, and carried on today by Regan and his team, who take pride in delivering work that's precise, professional, and built to last.</p>
+      <p>Regan is a <strong>fully licensed and insured</strong> tiler, and every job — whether it's a bathroom renovation, a new kitchen splashback, or a full floor installation — gets the same level of care and attention. No shortcuts. No excuses. Just quality tiling done right.</p>
       <div class="about-stats">
         <div>
           <div class="stat-val">5★</div>
@@ -1057,85 +979,24 @@
 
 <!-- ── GALLERY ── -->
 <section id="gallery">
-  <div class="gallery-head">
+  <div class="portfolio-head reveal">
     <div>
-      <div class="label">Our Work</div>
-      <h2 class="h2 light">Photo <em>Gallery</em></h2>
+      <div class="label">Portfolio</div>
+      <h2 class="h2 light">Our <em>Work</em></h2>
     </div>
-    <p>Every project in this gallery is a Lundy Tiling original — residential &amp; commercial work across Newcastle, Lake Macquarie &amp; The Hunter Valley.</p>
+    <a class="portfolio-more" href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">More photos @lundytiling &rarr;</a>
   </div>
-  <div class="gallery-slideshow-wrap">
-    <div class="gallery-slideshow">
-      <div class="gallery-slide active">
-        <div class="g-item g-a" onclick="openLb('photos/15-marble-luxury-bathroom.jpg')"><img src="photos/15-marble-luxury-bathroom.jpg" alt="Marble luxury bathroom with golden sunset" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/34-sandstone-alfresco-patio.jpg')"><img src="photos/34-sandstone-alfresco-patio.jpg" alt="Warm sandstone alfresco patio tiling" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/16-marble-shower-brass.jpg')"><img src="photos/16-marble-shower-brass.jpg" alt="Marble shower with brass fixtures" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/17-dark-bathroom-skylight.jpg')"><img src="photos/17-dark-bathroom-skylight.jpg" alt="Dark stone bathroom with skylight" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/37-new-home-patio-alfresco.jpg')"><img src="photos/37-new-home-patio-alfresco.jpg" alt="New home alfresco patio with grey tiles" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/14-grey-ensuite-double-vanity.jpg')"><img src="photos/14-grey-ensuite-double-vanity.jpg" alt="Grey ensuite with double vanity" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/10-grey-terrazzo-bathroom.jpg')"><img src="photos/10-grey-terrazzo-bathroom.jpg" alt="Grey terrazzo bathroom" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/06-white-bathroom.jpg')"><img src="photos/06-white-bathroom.jpg" alt="Modern white bathroom with arch mirror" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/13-pool-travertine-sunny.jpg')"><img src="photos/13-pool-travertine-sunny.jpg" alt="Pool with travertine tile surrounds" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/11-exterior-stone-house.jpg')"><img src="photos/11-exterior-stone-house.jpg" alt="House exterior with stone cladding" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/21-alfresco-bbq-wall.jpg')"><img src="photos/21-alfresco-bbq-wall.jpg" alt="Alfresco outdoor entertaining area" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/40-grey-bath-subway-feature.jpg')"><img src="photos/40-grey-bath-subway-feature.jpg" alt="Grey bathroom with dark subway feature wall" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/08-fireplace-wall.jpg')"><img src="photos/08-fireplace-wall.jpg" alt="Black feature wall with fireplace" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/19-exterior-stairs.jpg')"><img src="photos/19-exterior-stairs.jpg" alt="Premium tiled exterior stairs" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/12-timber-vanity-bathroom.jpg')"><img src="photos/12-timber-vanity-bathroom.jpg" alt="White bathroom with timber vanity" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/38-greige-rain-shower.jpg')"><img src="photos/38-greige-rain-shower.jpg" alt="Greige bathroom with matte black rain shower" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/22-pool-travertine-waterfall.jpg')"><img src="photos/22-pool-travertine-waterfall.jpg" alt="Pool with travertine surround and waterfall wall" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/23-white-marble-double-vanity.jpg')"><img src="photos/23-white-marble-double-vanity.jpg" alt="White Calacatta marble bathroom double vanity" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/24-luxury-marble-brass-bathroom.jpg')"><img src="photos/24-luxury-marble-brass-bathroom.jpg" alt="Luxury marble bathroom with brass fixtures" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/35-grey-herringbone-shower.jpg')"><img src="photos/35-grey-herringbone-shower.jpg" alt="Grey herringbone feature shower with niche" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/26-marble-steps-close.jpg')"><img src="photos/26-marble-steps-close.jpg" alt="Architectural grey marble tiled steps" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/36-grey-bathroom-dark-vanity.jpg')"><img src="photos/36-grey-bathroom-dark-vanity.jpg" alt="Grey bathroom with dark timber vanity" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/28-grey-bath-freestanding.jpg')"><img src="photos/28-grey-bath-freestanding.jpg" alt="Grey tiled bathroom with freestanding bath" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/29-sage-subway-bathroom.jpg')"><img src="photos/29-sage-subway-bathroom.jpg" alt="Sage green subway tiles with timber vanity" loading="lazy"></div>
-      </div>
-      <div class="gallery-slide">
-        <div class="g-item g-a" onclick="openLb('photos/30-pool-grey-pavers.jpg')"><img src="photos/30-pool-grey-pavers.jpg" alt="Pool area with large grey pavers" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/31-dark-subway-laundry.jpg')"><img src="photos/31-dark-subway-laundry.jpg" alt="Dark glossy subway tiles laundry" loading="lazy"></div>
-        <div class="g-item g-b" onclick="openLb('photos/39-commercial-white-subway-kitchen.jpg')"><img src="photos/39-commercial-white-subway-kitchen.jpg" alt="Commercial kitchen with white subway tiles" loading="lazy"></div>
-        <div class="g-item g-a" onclick="openLb('photos/33-black-slate-balcony.jpg')"><img src="photos/33-black-slate-balcony.jpg" alt="Black slate tiles on modern balcony" loading="lazy"></div>
-      </div>
-    </div>
-    <div class="gallery-nav">
-      <button class="gallery-arrow" id="galleryPrev" aria-label="Previous">&#8249;</button>
-      <button class="gallery-dot active" data-slide="0" aria-label="Slide 1"></button>
-      <button class="gallery-dot" data-slide="1" aria-label="Slide 2"></button>
-      <button class="gallery-dot" data-slide="2" aria-label="Slide 3"></button>
-      <button class="gallery-dot" data-slide="3" aria-label="Slide 4"></button>
-      <button class="gallery-dot" data-slide="4" aria-label="Slide 5"></button>
-      <button class="gallery-dot" data-slide="5" aria-label="Slide 6"></button>
-      <button class="gallery-dot" data-slide="6" aria-label="Slide 7"></button>
-      <button class="gallery-arrow" id="galleryNext" aria-label="Next">&#8250;</button>
-    </div>
+  <div class="portfolio-filters" id="portfolioFilters">
+    <button class="pf-btn active" type="button" data-cat="all">All</button>
+    <button class="pf-btn" type="button" data-cat="bathrooms">Bathrooms</button>
+    <button class="pf-btn" type="button" data-cat="pools">Pools</button>
+    <button class="pf-btn" type="button" data-cat="outdoor">Outdoor</button>
+    <button class="pf-btn" type="button" data-cat="feature">Feature Walls</button>
   </div>
-  <div class="gallery-permanent">
-    <div class="gallery-permanent-item" onclick="openLb('photos/09-commercial-bar.jpg')">
-      <img src="photos/09-commercial-bar.jpg" alt="Commercial bar tiling — dark marble" loading="lazy">
-      <div class="g-commercial-tag">Commercial &amp; Hospitality Work</div>
-    </div>
-  </div>
+  <div class="portfolio-grid" id="portfolioGrid"></div>
   <div id="lbOverlay" class="lb-overlay" onclick="closeLb()">
     <button class="lb-close" onclick="closeLb()">&times;</button>
     <img id="lbImg" src="" alt="">
-  </div>
-  <div class="gallery-ig">
-    <a href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">
-      <svg viewBox="0 0 24 24" fill="currentColor"><rect x="2" y="2" width="20" height="20" rx="5" ry="5" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg>
-      Follow @lundytiling for the latest completed projects
-    </a>
   </div>
 </section>
 
@@ -1187,68 +1048,13 @@
   </div>
 </section>
 
-<!-- ── WHY ── -->
-<section id="why" class="section" style="background:var(--white);">
-  <div class="why-wrap">
-    <div class="why-panel reveal-left">
-      <div class="why-panel-photo">
-        <img src="photos/07-stone-bathroom.jpg" alt="Premium stone bathroom by Lundy Tiling">
-      </div>
-      <div class="why-stat-grid">
-        <div class="why-stat-item">
-          <div class="why-stat-num">NSW</div>
-          <div class="why-stat-label">Licensed & Insured Tiler</div>
-        </div>
-        <div class="why-stat-item">
-          <div class="why-stat-num">3</div>
-          <div class="why-stat-label">Regions Serviced</div>
-        </div>
-        <div class="why-stat-item">
-          <div class="why-stat-num">$0</div>
-          <div class="why-stat-label">Cost for a Quote</div>
-        </div>
-        <div class="why-stat-item">
-          <div class="why-stat-num">100%</div>
-          <div class="why-stat-label">Client Satisfaction Rate</div>
-        </div>
-      </div>
-      <div class="why-panel-footer">
-        Servicing Newcastle, Lake Macquarie &amp; The Hunter Valley — local knowledge, local service, local standards.
-      </div>
-    </div>
-    <div class="why-text reveal-right">
-      <div class="label">Why Choose Us</div>
-      <h2 class="h2">Skill. Integrity.<br /><em>Guaranteed.</em></h2>
-      <p>We know you have options — here's why homeowners across the Hunter keep choosing Lundy Tiling.</p>
-      <div class="why-list">
-        <div class="why-item">
-          <div class="why-num">01</div>
-          <div><h4>Licensed &amp; Fully Insured</h4><p>All work is carried out to Australian standards — fully licensed and insured for your peace of mind.</p></div>
-        </div>
-        <div class="why-item">
-          <div class="why-num">02</div>
-          <div><h4>Attention to Detail</h4><p>Perfect grout lines, level surfaces, clean edges. Experience and knowledge far beyond his age — client's words, not ours.</p></div>
-        </div>
-        <div class="why-item">
-          <div class="why-num">03</div>
-          <div><h4>Free, Transparent Quotes</h4><p>No hidden costs, no bill shock. Get in touch for a free quote — always clear, always honest.</p></div>
-        </div>
-        <div class="why-item">
-          <div class="why-num">04</div>
-          <div><h4>Local to the Hunter</h4><p>Based locally — fast response times, no travel delays, and genuine care for the community we work in.</p></div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
 <!-- ── CONTACT ── -->
 <section id="contact" class="section">
   <div class="contact-wrap">
     <div class="contact-info reveal-left">
       <div class="label">Get In Touch</div>
       <h2 class="h2 light">Start Your<br /><em>Project Today</em></h2>
-      <p>Fill in the form for a free, no-obligation quote. Or reach out directly — Regan is always happy to talk through your project.</p>
+      <p>Fill in the form for a free, no-obligation quote. Or reach out directly — Regan and his team are always happy to talk through your project.</p>
       <div class="contact-details">
         <div class="c-item">
           <div class="c-icon"><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg></div>
@@ -1270,7 +1076,7 @@
     </div>
     <div class="contact-form reveal-right">
       <div class="form-title">Request a Free Quote</div>
-      <p class="form-subtitle">Fill in your details below — Regan will get back to you within 24 hours with a clear, no-obligation quote.</p>
+      <p class="form-subtitle">Fill in your details below — Regan and his team will get back to you within 24 hours with a clear, no-obligation quote.</p>
       <div class="form-row">
         <div class="fg"><label>First Name</label><input type="text" placeholder="John" /></div>
         <div class="fg"><label>Last Name</label><input type="text" placeholder="Smith" /></div>
@@ -1310,7 +1116,7 @@
         <textarea placeholder="Describe the space, approximate size, tile preferences, any inspiration..."></textarea>
       </div>
       <div class="fg">
-        <label>Project Photos <span style="font-weight:400;color:var(--grey);">— optional, helps Regan quote accurately</span></label>
+        <label>Project Photos <span style="font-weight:400;color:var(--grey);">— optional, helps Regan and his team quote accurately</span></label>
         <div class="file-drop" id="fileDrop">
           <input type="file" id="photoUpload" accept="image/*" multiple onchange="handleFiles(this)">
           <svg class="file-drop-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
@@ -1385,7 +1191,7 @@
     smoke.style.left = sx + 'px'; smoke.style.top = sy + 'px';
     requestAnimationFrame(move);
   })();
-  document.querySelectorAll('a, button, .service-card, .testi-card, .why-item, .g-item').forEach(el => {
+  document.querySelectorAll('a, button, .service-card, .testi-card, .pf-card').forEach(el => {
     el.addEventListener('mouseenter', () => { tile.classList.add('big'); smoke.classList.add('big'); });
     el.addEventListener('mouseleave', () => { tile.classList.remove('big'); smoke.classList.remove('big'); });
   });
@@ -1453,24 +1259,64 @@
   }, { threshold: 0.5 });
   document.querySelectorAll('[data-count]').forEach(el => cObs.observe(el));
 
-  // Gallery slideshow
+  // ── PORTFOLIO ──
   (function() {
-    const slides = document.querySelectorAll('.gallery-slide');
-    const dots = document.querySelectorAll('.gallery-dot');
-    let current = 0, timer;
-    function goTo(n) {
-      slides[current].classList.remove('active');
-      dots[current].classList.remove('active');
-      current = ((n % slides.length) + slides.length) % slides.length;
-      slides[current].classList.add('active');
-      dots[current].classList.add('active');
-      clearInterval(timer);
-      timer = setInterval(() => goTo(current + 1), 5000);
+    const PROJECTS = [
+      ['545398453_18118495084503155_2822056156377531721_n.jpg','bathrooms','Calacatta marble bathroom with brushed gold tapware'],
+      ['472581889_1673653406547337_6256540828035400979_n.jpg','pools','Pool surround & coping with water feature'],
+      ['472313281_1673662793213065_3039376232796878258_n.jpg','outdoor','Tiled entry steps with shadowline detail'],
+      ['472311974_1673634639882547_8680875521525149879_n.jpg','feature','Natural stacked-stone feature wall'],
+      ['546582429_18118495066503155_9065424236097016845_n.jpg','bathrooms','Marble bathroom with freestanding bath & gold filler'],
+      ['472720312_1675200403059304_6734869596136761090_n.jpg','pools','Pool with grey stone paver surround'],
+      ['481310116_1328534801478808_7935848950865557028_n.jpg','outdoor','Sandstone exterior cladding — Hampton-style home'],
+      ['198166537_892349618011057_5805177686323768390_n.jpg','feature','Charcoal subway splashback — laundry'],
+      ['609242913_18130750162503155_2400235091517318426_n.jpg','bathrooms','Charcoal bathroom with freestanding bath & skylight'],
+      ['472314257_1673662873213057_1570446950856305554_n.jpg','outdoor','Modern entry steps & landing'],
+      ['472446693_1673085016604176_3390216572233916554_n.jpg','feature','Natural stone feature wall & niche'],
+      ['608832362_18130750186503155_5765254541057286256_n.jpg','bathrooms','Grey herringbone shower with niche & bench'],
+      ['480239214_1316381132694175_8759661565074440958_n.jpg','outdoor','Sandstone alfresco patio'],
+      ['472311266_1673634483215896_5670752839276125186_n.jpg','feature','Commercial servery — white subway tiling'],
+      ['609256945_18130750285503155_8015774844088847097_n.jpg','bathrooms','Greige bathroom with matte black rain shower'],
+      ['472279681_1673662246546453_98906811783724126_n.jpg','outdoor','Outdoor patio & alfresco tiling'],
+      ['609935781_18130750276503155_988176323626673667_n.jpg','bathrooms','Calacatta marble shower with brushed gold'],
+      ['482203221_1330531711279117_2990799100579214710_n.jpg','outdoor','Dark slate entry patio'],
+      ['480300393_1315798266085795_8887994703206542029_n.jpg','bathrooms','Marble bathroom with double vanity'],
+      ['180583698_872176823361670_2981245636632072687_n.jpg','outdoor','Alfresco BBQ area with stone feature wall'],
+      ['608400799_18130750297503155_249484511090735272_n.jpg','bathrooms','Marble-look bathroom with walk-in shower'],
+      ['482073750_1329978434667778_5534513280224159913_n.jpg','bathrooms','Grey stone bathroom with double vanity'],
+      ['609552398_18130750213503155_1741490282391049184_n.jpg','bathrooms','Sage subway feature with timber vanity'],
+      ['480361964_1317744169224538_1782593596531017926_n.jpg','bathrooms','Walk-in shower with dark timber vanity'],
+      ['609239830_18130750204503155_621232142304293733_n.jpg','bathrooms','Grey bathroom with corner bath'],
+      ['608851930_18130750243503155_1844681775372887328_n.jpg','bathrooms','Navy gloss subway bathroom'],
+      ['607805228_18130750225503155_4421532371754618752_n.jpg','bathrooms','Grey bathroom with inset bath'],
+      ['610524817_18130750234503155_628515295080878311_n.jpg','bathrooms','Grey bathroom with inset bath & niche'],
+      ['610258046_18130750267503155_4569320672954246535_n.jpg','bathrooms','Large-format bathroom with skylight'],
+    ];
+    const LABELS = { bathrooms:'Bathrooms', pools:'Pools', outdoor:'Outdoor', feature:'Feature Walls' };
+    const grid = document.getElementById('portfolioGrid');
+    if (!grid) return;
+    const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    function paint(cat) {
+      const items = PROJECTS.filter(p => cat === 'all' || p[1] === cat);
+      grid.innerHTML = items.map(p =>
+        '<div class="pf-card" data-cat="' + p[1] + '" data-src="photos/' + p[0] + '">'
+        + '<img src="photos/' + p[0] + '" alt="' + esc(p[2]) + '" loading="lazy">'
+        + '<div class="pf-card__ov"><span class="pf-card__cat">' + LABELS[p[1]] + '</span>'
+        + '<h4 class="pf-card__title">' + esc(p[2]) + '</h4></div></div>'
+      ).join('');
     }
-    dots.forEach((dot, i) => dot.addEventListener('click', () => goTo(i)));
-    document.getElementById('galleryPrev').addEventListener('click', () => goTo(current - 1));
-    document.getElementById('galleryNext').addEventListener('click', () => goTo(current + 1));
-    timer = setInterval(() => goTo(current + 1), 5000);
+    grid.addEventListener('click', e => {
+      const card = e.target.closest('.pf-card');
+      if (card && card.dataset.src) openLb(card.dataset.src);
+    });
+    document.querySelectorAll('#portfolioFilters .pf-btn').forEach(btn => {
+      btn.addEventListener('click', () => {
+        document.querySelectorAll('#portfolioFilters .pf-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        paint(btn.dataset.cat);
+      });
+    });
+    paint('all');
   })();
 </script>
 </body>
