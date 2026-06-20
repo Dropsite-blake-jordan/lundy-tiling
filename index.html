@@ -509,7 +509,7 @@
     .portfolio-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
     .pf-card {
       position: relative; overflow: hidden; cursor: pointer;
-      border-radius: 2px; aspect-ratio: 4 / 3.4; background: var(--mid);
+      border-radius: 2px; aspect-ratio: 4 / 5; background: var(--mid);
       animation: pfIn 0.5s cubic-bezier(.16,1,.3,1) both;
     }
     @keyframes pfIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
@@ -522,6 +522,11 @@
     }
     .pf-card__cat { font-size: 0.62rem; font-weight: 700; letter-spacing: 0.18em; text-transform: uppercase; color: var(--orange); margin-bottom: 0.35rem; }
     .pf-card__title { font-family: 'Inter', sans-serif; font-size: 0.85rem; font-weight: 500; color: #fff; line-height: 1.35; letter-spacing: 0.01em; }
+    .portfolio-pager { display: flex; justify-content: center; align-items: center; gap: 0.5rem; margin-top: 2.4rem; }
+    .pf-page { font-family: 'Inter', sans-serif; font-size: 0.8rem; font-weight: 600; min-width: 38px; height: 38px; padding: 0 0.6rem; cursor: pointer; color: rgba(255,255,255,0.6); background: transparent; border: 1px solid rgba(255,255,255,0.16); border-radius: 2px; transition: color 0.2s, background 0.2s, border-color 0.2s; }
+    .pf-page:hover:not(:disabled) { color: #fff; border-color: rgba(229,92,32,0.55); }
+    .pf-page.active { background: var(--orange); border-color: var(--orange); color: #fff; }
+    .pf-page:disabled { opacity: 0.3; cursor: default; }
     /* Lightbox */
     .lb-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,0.95); z-index:9999; align-items:center; justify-content:center; }
     .lb-overlay.active { display:flex; }
@@ -724,6 +729,8 @@
     }
     .footer-wordmark em { color: var(--orange); font-style: normal; }
     footer p { color: rgba(255,255,255,0.3); font-size: 0.75rem; text-align: center; }
+    .footer-credit { display: inline-block; margin-top: 5px; color: rgba(255,255,255,0.4); }
+    .footer-credit strong { color: rgba(255,255,255,0.62); font-weight: 600; letter-spacing: 0.02em; }
     .footer-links { display: flex; gap: 1.5rem; justify-content: flex-end; }
     .footer-links a { color: rgba(255,255,255,0.35); text-decoration: none; font-size: 0.75rem; transition: color 0.2s; }
     .footer-links a:hover { color: var(--orange); }
@@ -937,14 +944,29 @@
   </div>
 </section>
 
-<!-- ── PHOTO STRIP ── -->
-<div class="photo-strip">
-  <img src="photos/04-pool-surround.jpg" alt="Pool surround tiling by Lundy Tiling">
-  <div class="photo-strip-text">
-    <h2>Every Surface.<br />Every Detail.<br /><em>Done Right.</em></h2>
-    <p>From luxurious bathrooms to outdoor entertaining areas — Lundy Tiling delivers results that last.</p>
+<!-- ── GALLERY ── -->
+<section id="gallery">
+  <div class="portfolio-head reveal">
+    <div>
+      <div class="label">Portfolio</div>
+      <h2 class="h2 light">Our <em>Work</em></h2>
+    </div>
+    <a class="portfolio-more" href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">More photos @lundytiling &rarr;</a>
   </div>
-</div>
+  <div class="portfolio-filters" id="portfolioFilters">
+    <button class="pf-btn active" type="button" data-cat="all">All</button>
+    <button class="pf-btn" type="button" data-cat="bathrooms">Bathrooms</button>
+    <button class="pf-btn" type="button" data-cat="pools">Pools</button>
+    <button class="pf-btn" type="button" data-cat="outdoor">Outdoor</button>
+    <button class="pf-btn" type="button" data-cat="feature">Feature Walls</button>
+  </div>
+  <div class="portfolio-grid" id="portfolioGrid"></div>
+  <div class="portfolio-pager" id="portfolioPager"></div>
+  <div id="lbOverlay" class="lb-overlay" onclick="closeLb()">
+    <button class="lb-close" onclick="closeLb()">&times;</button>
+    <img id="lbImg" src="" alt="">
+  </div>
+</section>
 
 <!-- ── PROCESS ── -->
 <section id="process" class="section">
@@ -974,29 +996,6 @@
       <h3>Final Walkthrough</h3>
       <p>We inspect every detail together. You're only satisfied when it's perfect — that's our standard.</p>
     </div>
-  </div>
-</section>
-
-<!-- ── GALLERY ── -->
-<section id="gallery">
-  <div class="portfolio-head reveal">
-    <div>
-      <div class="label">Portfolio</div>
-      <h2 class="h2 light">Our <em>Work</em></h2>
-    </div>
-    <a class="portfolio-more" href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">More photos @lundytiling &rarr;</a>
-  </div>
-  <div class="portfolio-filters" id="portfolioFilters">
-    <button class="pf-btn active" type="button" data-cat="all">All</button>
-    <button class="pf-btn" type="button" data-cat="bathrooms">Bathrooms</button>
-    <button class="pf-btn" type="button" data-cat="pools">Pools</button>
-    <button class="pf-btn" type="button" data-cat="outdoor">Outdoor</button>
-    <button class="pf-btn" type="button" data-cat="feature">Feature Walls</button>
-  </div>
-  <div class="portfolio-grid" id="portfolioGrid"></div>
-  <div id="lbOverlay" class="lb-overlay" onclick="closeLb()">
-    <button class="lb-close" onclick="closeLb()">&times;</button>
-    <img id="lbImg" src="" alt="">
   </div>
 </section>
 
@@ -1139,7 +1138,7 @@
     </svg>
     <div class="footer-wordmark">LUNDY <em>TILING</em></div>
   </div>
-  <p>&copy; 2025 Lundy Tiling. Newcastle, NSW. All rights reserved.</p>
+  <p>&copy; 2025 Lundy Tiling. Newcastle, NSW. All rights reserved.<br /><span class="footer-credit">Website provided by <strong>DropSite Australia</strong></span></p>
   <div class="footer-links">
     <a href="https://www.facebook.com/LundyTiling/" target="_blank" rel="noopener">Facebook</a>
     <a href="https://www.instagram.com/lundytiling/" target="_blank" rel="noopener">Instagram</a>
@@ -1294,29 +1293,56 @@
     ];
     const LABELS = { bathrooms:'Bathrooms', pools:'Pools', outdoor:'Outdoor', feature:'Feature Walls' };
     const grid = document.getElementById('portfolioGrid');
+    const pager = document.getElementById('portfolioPager');
     if (!grid) return;
     const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    function paint(cat) {
-      const items = PROJECTS.filter(p => cat === 'all' || p[1] === cat);
-      grid.innerHTML = items.map(p =>
+    const PAGE_SIZE = 16;
+    let curCat = 'all', curPage = 1;
+    const filtered = () => PROJECTS.filter(p => curCat === 'all' || p[1] === curCat);
+    function render() {
+      const items = filtered();
+      const pages = Math.max(1, Math.ceil(items.length / PAGE_SIZE));
+      if (curPage > pages) curPage = pages;
+      const slice = items.slice((curPage - 1) * PAGE_SIZE, curPage * PAGE_SIZE);
+      grid.innerHTML = slice.map(p =>
         '<div class="pf-card" data-cat="' + p[1] + '" data-src="photos/' + p[0] + '">'
         + '<img src="photos/' + p[0] + '" alt="' + esc(p[2]) + '" loading="lazy">'
         + '<div class="pf-card__ov"><span class="pf-card__cat">' + LABELS[p[1]] + '</span>'
         + '<h4 class="pf-card__title">' + esc(p[2]) + '</h4></div></div>'
       ).join('');
+      if (!pager) return;
+      if (pages <= 1) { pager.innerHTML = ''; return; }
+      let h = '<button class="pf-page" data-page="prev"' + (curPage === 1 ? ' disabled' : '') + ' aria-label="Previous page">‹</button>';
+      for (let i = 1; i <= pages; i++) h += '<button class="pf-page' + (i === curPage ? ' active' : '') + '" data-page="' + i + '">' + i + '</button>';
+      h += '<button class="pf-page" data-page="next"' + (curPage === pages ? ' disabled' : '') + ' aria-label="Next page">›</button>';
+      pager.innerHTML = h;
     }
     grid.addEventListener('click', e => {
       const card = e.target.closest('.pf-card');
       if (card && card.dataset.src) openLb(card.dataset.src);
     });
+    if (pager) pager.addEventListener('click', e => {
+      const b = e.target.closest('.pf-page');
+      if (!b || b.disabled) return;
+      const pages = Math.max(1, Math.ceil(filtered().length / PAGE_SIZE));
+      const v = b.dataset.page;
+      if (v === 'prev') curPage = Math.max(1, curPage - 1);
+      else if (v === 'next') curPage = Math.min(pages, curPage + 1);
+      else curPage = +v;
+      render();
+      const g = document.getElementById('gallery');
+      if (g) window.scrollTo({ top: g.offsetTop - 72, behavior: 'smooth' });
+    });
     document.querySelectorAll('#portfolioFilters .pf-btn').forEach(btn => {
       btn.addEventListener('click', () => {
         document.querySelectorAll('#portfolioFilters .pf-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
-        paint(btn.dataset.cat);
+        curCat = btn.dataset.cat;
+        curPage = 1;
+        render();
       });
     });
-    paint('all');
+    render();
   })();
 </script>
 </body>
