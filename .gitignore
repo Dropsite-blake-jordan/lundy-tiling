@@ -3,3 +3,10 @@
 lundy 1_files/
 ~$*
 ggg.jpeg
+
+# wrangler files
+.wrangler
+.dev.vars*
+!.dev.vars.example
+.env*
+!.env.example
