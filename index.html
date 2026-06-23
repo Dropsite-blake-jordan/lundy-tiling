@@ -756,7 +756,7 @@
       .section { padding: 5rem 5%; }
       nav { padding: 0 5%; }
       .services-grid { grid-template-columns: 1fr; }
-      .portfolio-grid { grid-template-columns: 1fr; }
+      .portfolio-grid { grid-template-columns: repeat(2, 1fr); }
       .form-row { grid-template-columns: 1fr; }
       .hero-content h1 { font-size: 3rem; }
       .hero-content { padding: 0 0 5rem; }
@@ -1296,7 +1296,7 @@
     const pager = document.getElementById('portfolioPager');
     if (!grid) return;
     const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    const PAGE_SIZE = 16;
+    const PAGE_SIZE = 8;
     let curCat = 'all', curPage = 1;
     const filtered = () => PROJECTS.filter(p => curCat === 'all' || p[1] === curCat);
     function render() {
