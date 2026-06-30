@@ -784,9 +784,6 @@
   </div>
 </div>
 
-<!-- ── CURSOR ── -->
-<div class="cursor-tile" id="cursorTile"></div>
-<div class="cursor-smoke" id="cursorSmoke"></div>
 
 <!-- ── NAV ── -->
 <nav id="navbar">
@@ -801,7 +798,7 @@
     <li><a href="#about">About</a></li>
     <li><a href="#services">Services</a></li>
     <li><a href="#gallery">Gallery</a></li>
-    <li><a href="#testimonials">Reviews</a></li>
+
     <li><a href="#contact" class="nav-cta">Get a Quote</a></li>
   </ul>
   <div class="hamburger" id="hamburger" onclick="toggleMenu()">
@@ -877,12 +874,12 @@
         <svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/></svg>
         Newcastle · Lake Macquarie · Hunter Valley
       </div>
-      <p>Lundy Tiling is a <strong>family business</strong> servicing <strong>Newcastle, Lake Macquarie and The Hunter Valley</strong>. The trade has been passed down through the generations — first started by Regan's dad, and carried on today by Regan and his team, who take pride in delivering work that's precise, professional, and built to last.</p>
+      <p>Lundy Tiling is a <strong>family business with over 45 years of tiling experience</strong> behind it. The trade was started by Regan's father and has been passed down through the generations — carried on today by Regan and his team, who take the same pride in delivering work that's precise, professional, and built to last.</p>
       <p>Regan is a <strong>fully licensed and insured</strong> tiler, and every job — whether it's a bathroom renovation, a new kitchen splashback, or a full floor installation — gets the same level of care and attention. No shortcuts. No excuses. Just quality tiling done right.</p>
       <div class="about-stats">
         <div>
-          <div class="stat-val">5★</div>
-          <div class="stat-label">Google Rating</div>
+          <div class="stat-val">45+</div>
+          <div class="stat-label">Years of Family Experience</div>
         </div>
         <div>
           <div class="stat-val">100%</div>
@@ -1001,13 +998,24 @@
   </div>
 </section>
 
-<!-- ── TESTIMONIALS ── -->
-<section id="testimonials" class="section">
-  <div class="testi-head reveal">
-    <div class="label" style="justify-content:center;margin-bottom:0.8rem;">What Clients Say</div>
-    <h2 class="h2">Real Reviews.<br /><em>Real Results.</em></h2>
+<!-- ── REVIEWS CTA ── -->
+<section id="testimonials" class="section" style="background:var(--black);">
+  <div style="text-align:center;max-width:680px;margin:0 auto;">
+    <div class="label" style="justify-content:center;">Reviews</div>
+    <h2 class="h2 light reveal" style="margin-bottom:1.2rem;">Happy with Our <em>Work?</em></h2>
+    <p class="reveal d1" style="color:rgba(255,255,255,0.5);font-size:0.95rem;line-height:1.9;margin-bottom:3rem;">We're proud of every job we do. If Regan and his team tiled your home, we'd love to hear about it — a review helps other locals find a tiler they can trust.</p>
+    <div class="reveal d2" style="display:flex;gap:1rem;justify-content:center;flex-wrap:wrap;">
+      <a href="https://www.facebook.com/LundyTiling/reviews" target="_blank" rel="noopener" class="btn-orange">
+        Leave a Facebook Review
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="16" height="16"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+      <a href="https://g.page/r/lundytiling/review" target="_blank" rel="noopener" class="btn-ghost" style="border:1px solid rgba(255,255,255,0.18);padding:1rem 2rem;border-radius:1px;">
+        Leave a Google Review
+        <svg fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8l4 4m0 0l-4 4m4-4H3"/></svg>
+      </a>
+    </div>
   </div>
-  <div class="testi-grid">
+  <div style="display:none;" class="testi-grid">
     <div class="testi-card reveal d1">
       <div class="testi-bar"></div>
       <div class="testi-quote">"</div>
@@ -1181,21 +1189,6 @@
     document.getElementById('contact').scrollIntoView({ behavior: 'smooth' });
   }
 
-  // ── CURSOR ──
-  const tile  = document.getElementById('cursorTile');
-  const smoke = document.getElementById('cursorSmoke');
-  let mx = 0, my = 0, sx = 0, sy = 0;
-  document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
-  (function move() {
-    tile.style.left = mx + 'px'; tile.style.top = my + 'px';
-    sx += (mx - sx) * 0.14; sy += (my - sy) * 0.14;
-    smoke.style.left = sx + 'px'; smoke.style.top = sy + 'px';
-    requestAnimationFrame(move);
-  })();
-  document.querySelectorAll('a, button, .service-card, .testi-card, .pf-card').forEach(el => {
-    el.addEventListener('mouseenter', () => { tile.classList.add('big'); smoke.classList.add('big'); });
-    el.addEventListener('mouseleave', () => { tile.classList.remove('big'); smoke.classList.remove('big'); });
-  });
 
   // ── NAV ──
   window.addEventListener('scroll', () => {
